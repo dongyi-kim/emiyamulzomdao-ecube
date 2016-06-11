@@ -1,7 +1,7 @@
 CXX=g++
 
 main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o
-	$(CXX) -o main $^ -lcurl
+	$(CXX) -o main $^ -lcurl -lpthread
 
 main.o: main.cpp
 	$(CXX) -c main.cpp
