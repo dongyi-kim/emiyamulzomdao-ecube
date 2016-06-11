@@ -41,6 +41,7 @@ int main() {
                 break;
             }
             else {
+                cout<<http_status<<endl;
                 cout<<"Error!!!"<<endl;
             }
         }
