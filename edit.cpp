@@ -10,6 +10,7 @@
 #include "common.h"
 #include "buzzer.h"
 #include "curl_common.h"
+#include "fnd.h"
 
 using namespace std;
 
@@ -50,8 +51,11 @@ namespace edit {
 
         bool init_flag = true;
 
-        int cnt = 0;
+        int cnt = 0, segValue = 0;
         int fd = open(DRIVER_KEY, O_RDWR);
+        pthread_t fnd_thread;
+
+        pthread_create(&fnd_thread, NULL, fnd, (void*)&segValue);
 
         while(1) {
             if( s->mode != EDIT_MODE ) {
@@ -61,7 +65,7 @@ namespace edit {
                 }
             }
             else {
-                int mode = -1, rdata, segValue, arr[4], origin;
+                int mode = -1, rdata, arr[4], origin;
                 while(1)
                 {
                     if( s->mode != EDIT_MODE ) {

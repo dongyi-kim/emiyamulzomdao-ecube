@@ -1,6 +1,6 @@
 CXX=g++
 
-main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o
 	$(CXX) -o main $^ -lcurl
 
 main.o: main.cpp
@@ -24,5 +24,7 @@ buzzer.o: buzzer.cpp
 dipsw.o: dipsw.cpp
 	$(CXX) -c dipsw.cpp
 
+fnd.o: fnd.cpp
+	$(CXX) -c fnd.cpp
 clean:
 	rm *.o
