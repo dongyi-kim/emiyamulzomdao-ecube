@@ -23,3 +23,6 @@ buzzer.o: buzzer.cpp
 
 dipsw.o: dipsw.cpp
 	$(CXX) -c dipsw.cpp
+
+clean:
+	rm *.o
