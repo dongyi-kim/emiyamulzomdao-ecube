@@ -1,4 +1,4 @@
-main: main.o edit.o observe.o auth.o curl_common.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o
 	g++ -o main $^ -lcurl
 
 main.o: main.cpp
@@ -15,3 +15,6 @@ auth.o: auth.cpp
 
 curl_common.o: curl_common.cpp
 	g++ -c curl_common.cpp
+
+buzzer.o: buzzer.cpp
+	g++ -c buzzer.cpp
