@@ -1,4 +1,6 @@
 #include <iostream>
+#include <curl/curl.h>
+#include "common.h"
 
 using namespace std;
 
@@ -20,3 +22,7 @@ size_t writeCallback(char* buf, size_t size, size_t nmemb, void* up)
     return size*nmemb; //tell curl how many bytes we handled
 }
 
+int sendConfigToServer(Data data)
+{
+    cout<<data.illumination<<" "<<data.temperature<<" "<<data.humidity<<endl;
+}

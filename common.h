@@ -20,15 +20,23 @@ public:
     }
 };
 
+class State {
+public:
+    int state[10];
+    int len;
+};
+
 class Shared {
 public:
     Data data;
+    State state;
     int mode;
     std::string id;
     Shared(){
         this->mode = -1;
     }
 };
+
 
 namespace edit{
     extern void init();
@@ -44,4 +52,5 @@ namespace auth{
     void input_account(string &id);
     int authorize(string id, string* result);
 }
+
 #endif //SYSPROG_COMMON_H

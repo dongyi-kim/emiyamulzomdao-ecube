@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "buzzer.h"
+#include "dipsw.h"
 
 #define DRIVER_BUZZER			"/dev/cnbuzzer"
 #define MAX_BUZZER_NUMBER		36
@@ -32,5 +33,26 @@ void buzzer(int buzzerNumber)
 	write(fd, &buzzerNumber, 4);
     close(fd);
 	
+	return;
+}
+
+void dip_buzzer(const int arr[], const int arr_len)
+{
+	int i;
+
+	int dips = dipsw();
+	printf("%d\n", dips);
+	printf("%d\n", arr_len);
+
+	if((dips & 1) != 1)
+	{
+
+		for(i = 0 ; i < arr_len ; i++)
+		{
+			printf("%d ", arr[i]);
+			buzzer(arr[i]);
+		}
+		printf("\n");
+	}
 	return;
 }
