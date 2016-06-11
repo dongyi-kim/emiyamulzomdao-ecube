@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "common.h"
 #include "buzzer.h"
+#include "curl_common.h"
 
 using namespace std;
 
