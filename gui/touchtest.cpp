@@ -18,7 +18,11 @@ int main(){
 
     touch::init();
     touch::add_callback(&print_event);
+    while(true){
+        int a =1;
+        a=  2;
 
+    }
     return 0;
 
 }

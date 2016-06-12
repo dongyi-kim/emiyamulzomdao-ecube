@@ -37,17 +37,32 @@ set<void(*)(touch::touch_event)> callbacks;
 
 int	fb_fd = NULL;
 int fp    = NULL;
+int readSize;
+void* read_from_device(void* eptr){
+    struct input_event *event = (input_event*)eptr;
+    readSize = -1;
+    readSize = read(fp, &event, sizeof(*event));
+}
 void read_coordinate(int &tx, int &ty){
     struct input_event event;
     int readSize;
     while(1)
     {
-        readSize = read(fp, &event, sizeof(event));
+        pthread_t read_thread;
+        pthread_create(&read_thread, NULL, &read_from_device, event);
+        usleep(100);
+        pthread_kill(read_thread, 1);
+        if(readSize == -1)
+        {
+            tx = ty = -1;
+            break;
+        }
+
         if ( readSize == sizeof(event) )
         {
-			printf("type :%04X \n",event.type);
-			printf("code :%04X \n",event.code);
-			printf("value:%08X \n",event.value);
+			//printf("type :%04X \n",event.type);
+			//printf("code :%04X \n",event.code);
+			//printf("value:%08X \n",event.value);
             if( event.type == EV_ABS )
             {
                 if (event.code == ABS_MT_POSITION_X )
@@ -101,7 +116,7 @@ void *listen(void *nullable)
 namespace touch{
     int init() {
         if (listener != NULL) {
-            pthread_join(listener, NULL);
+            pthread_kill(listener, 1);
             listener = NULL;
         }
 
