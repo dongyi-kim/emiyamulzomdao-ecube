@@ -41,12 +41,12 @@ namespace display{
 
     unsigned long* lcd(int x, int y){
         int lcd_y = x;
-        int lcd_x = y;
+        int lcd_x = screen_width - y - 1;
         //printf("(%d, %d) -> (%d, %d) \n",x ,y, lcd_x, lcd_y);
         return ((unsigned long*)pfbmap + (screen_width * lcd_y) + lcd_x);
     }
 
-    void draw_bmp(const vector<vector<pixel_t> > &bitmap, int x, int y )
+    void draw_bmp(const vector<vector<unsigned long> > &bitmap, int x, int y )
     {
         int fbfd;
 
