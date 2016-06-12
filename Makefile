@@ -53,5 +53,6 @@ thread_manager.o: thread_manager.cpp
 
 tlcd.o: tlcd.cpp
 	$(CXX) -c tlcd.cpp
+	
 clean:
 	rm *.o

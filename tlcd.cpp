@@ -312,19 +312,18 @@ void doHelp(void)
 
 string make_str(int value, char c)
 {
+    int reverse = 0;
+    while(value)
+    {
+        reverse += value%10;
+        value/10;
+    }
     string str = "";
     str += c;
-    if(value == 0)
+    while(reverse)
     {
-        str += '0';
-    }
-    else
-    {
-        while(value)
-        {
-            str += '0'+value/10;
-            value/10;
-        }
+        str += '0'+reverse%10;
+        reverse/10;
     }
     return str;
 }
@@ -350,7 +349,6 @@ void _tlcd(Shared* shared) {
     while(1)
     {
 
-/*
         string above = "";
         string under = "";
 
@@ -401,7 +399,7 @@ void _tlcd(Shared* shared) {
 
         prev_above = above;
         prev_under = under;
-        */
+        
         usleep(100000);
     }
     close(fd);

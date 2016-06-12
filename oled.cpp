@@ -407,6 +407,16 @@ static int Mode;
 */
 void oledDisp(string str)
 {
+    pthread_mutex_lock(thread_manager::get_oled());
+    pthread_mutex_lock(thread_manager::get_cled());
+    pthread_mutex_lock(thread_manager::get_mled());
+    pthread_mutex_lock(thread_manager::get_bled());
+    pthread_mutex_lock(thread_manager::get_seg());
+    pthread_mutex_lock(thread_manager::get_tlcd());
+    pthread_mutex_lock(thread_manager::get_dips());
+    pthread_mutex_lock(thread_manager::get_buzz());
+    pthread_mutex_lock(thread_manager::get_key());
+    
     reset();
     usleep(10000);
     Init();
@@ -414,50 +424,16 @@ void oledDisp(string str)
 
     imageLoading(str.c_str());
 
-
-    /*
-    switch ( Mode )
-    {
-    case MODE_WRITE:
-        writeData(writeNum, wdata);
-        break;
-    case MODE_READ:
-        {
-            int i;
-            readData(readNum, rdata);
-            printf("Read Data:\n");
-            for(i =0 ; i < readNum ; i++ )
-            {
-                printf("[%02X]",(unsigned char)rdata[i]);
-            }
-            printf("\n");
-        }
-        break;
-    case MODE_CMD:
-        oled_writeCmd(writeNum , wCmd);
-        break;
-    case MODE_RESET:
-        reset();
-        break;
-    case MODE_IMAGE:
-        imageLoading(argv[2]);
-        break;
-    case MODE_INIT:
-        Init();
-        break;
-    }
-    */
-
-
-    /*
-    if ( Mode == MODE_READ)
-    {
-        if ( rdata != NULL)
-            free(rdata);
-
-    }
-    */
-
+    pthread_mutex_unlock(thread_manager::get_cled());
+    pthread_mutex_unlock(thread_manager::get_mled());
+    pthread_mutex_unlock(thread_manager::get_bled());
+    pthread_mutex_unlock(thread_manager::get_seg());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
+    pthread_mutex_unlock(thread_manager::get_dips());
+    pthread_mutex_unlock(thread_manager::get_buzz());
+    pthread_mutex_unlock(thread_manager::get_key());
+    pthread_mutex_unlock(thread_manager::get_oled());
+    
     return;
 }
 
@@ -470,34 +446,29 @@ void _oled(Shared* shared)
         perror("driver open error.\n");
         return;
     }
-    string prev = "", cur = "";
+    Data* s = &(shared->sensor);
+    Data* d = &(shared->data);
+    bool chk[4];
+    
 
     while(1) {
-//        int writeNum;
-//        unsigned char wdata[10];
-//        int readNum;
-//        unsigned short* rdata = NULL;
-//        unsigned short wCmd[10];
-//        int cnt = 0;
-//        Data* s = &(shared->sensor);
-//        Data* d = &(shared->data);
-//        bool chk[4];
-//        chk[0] = s->humidity >= d->humidity;
-//        chk[1] = s->temperature >= d->temperature;
-//        chk[2] = s->illumination >= d->illumination;
-//        chk[3] = s->soil_humidity >= d->soil_humidity;
-//
-//        for(int i = 0 ; i < 4 ; i++)
-//        {
-//            if(chk[i])
-//            {
-//                cnt++;
-//            }
-//        }
-//
-//        cout << cur << endl;
-//        cout << prev << endl;
+        chk[0] = s->humidity >= d->humidity;
+        chk[1] = s->temperature >= d->temperature;
+        chk[2] = s->illumination >= d->illumination;
+        chk[3] = s->soil_humidity <= d->soil_humidity;
 
+        if(s->illumination <= 10)
+        {
+            oledDisp("sleep.bmp");
+        }
+        if(chk[0] && chk[1] && chk[2] && chk[3])
+        {
+            oledDisp("enough.bmp");
+        }
+        else
+        {
+            oledDisp("not_enough.bmp");
+        }
 
         if(shared->mode == EDIT_MODE)
         {
@@ -506,49 +477,10 @@ void _oled(Shared* shared)
         else {
             cur = "first.img";
         }
-//        else if(cnt == -1)
-//        {
-//            cur = "first.img";
-//        }
-//        else if(cnt == -1)
-//        {
-//            cur = "second.img";
-//        }
-//        else if(cnt == -1)
-//        {
-//            cur = "third.img";
-//        }
-//        if(cur != prev)
-//        {
-//            pthread_mutex_lock(thread_manager::get_a());
-//            oledDisp(cur.c_str());
-//            pthread_mutex_unlock(thread_manager::get_a());
-//        }
-//        prev = cur;
 
-        if( cur == prev ) {
-            continue;
-        }
-        prev = cur;
-        pthread_mutex_lock(thread_manager::get_oled());
-        pthread_mutex_lock(thread_manager::get_cled());
-        pthread_mutex_lock(thread_manager::get_mled());
-        pthread_mutex_lock(thread_manager::get_bled());
-        pthread_mutex_lock(thread_manager::get_seg());
-        pthread_mutex_lock(thread_manager::get_tlcd());
-        pthread_mutex_lock(thread_manager::get_dips());
-        pthread_mutex_lock(thread_manager::get_buzz());
-        pthread_mutex_lock(thread_manager::get_key());
+        
         oledDisp(cur);
-        pthread_mutex_unlock(thread_manager::get_cled());
-        pthread_mutex_unlock(thread_manager::get_mled());
-        pthread_mutex_unlock(thread_manager::get_bled());
-        pthread_mutex_unlock(thread_manager::get_seg());
-        pthread_mutex_unlock(thread_manager::get_tlcd());
-        pthread_mutex_unlock(thread_manager::get_dips());
-        pthread_mutex_unlock(thread_manager::get_buzz());
-        pthread_mutex_unlock(thread_manager::get_key());
-        pthread_mutex_unlock(thread_manager::get_oled());
+        
         usleep(1000000);
     }
     close(fd);

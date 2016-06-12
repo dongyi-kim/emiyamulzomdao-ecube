@@ -120,7 +120,7 @@ int displayDotLed(int driverfile, State* s)
 
     while(1)
     {
-
+        usleep(100000);
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {
@@ -151,13 +151,12 @@ int displayDotLed(int driverfile, State* s)
                     pthread_mutex_unlock(thread_manager::get_a());
                     usleep(ONE_LINE_TIME_U);
                 }
-                usleep(1000);
             }
 
             init_flag = true;
         }
 
-        usleep(10000);
+        
 
     }
     wdata[0]= 0;
