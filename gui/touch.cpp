@@ -90,12 +90,11 @@ void *counter(void *nullable){
 
 
 void read_coordinate(){
-
     while(1)
     {
         int readSize;
         struct input_event event;
-        int tx, ty;
+        int lcd_x, lcd_y;
 
         readSize = read(fp, &event, sizeof(event));
         //printf("check read Size : %d(%d)\n", readSize, sizeof(event));
@@ -110,11 +109,11 @@ void read_coordinate(){
             {
                 if (event.code == ABS_MT_POSITION_X )
                 {
-                    tx = event.value*screen_width/MAX_TOUCH_X;
+                    lcd_x = event.value*screen_width/MAX_TOUCH_X;
                 }
                 else if ( event.code == ABS_MT_POSITION_Y )
                 {
-                    ty = event.value*screen_height/MAX_TOUCH_Y;
+                    lcd_x = event.value*screen_height/MAX_TOUCH_Y;
                 }
             }
             else if ((event.type == EV_SYN) && (event.code == SYN_REPORT ))
@@ -125,7 +124,7 @@ void read_coordinate(){
                 pthread_mutex_lock(&timer_mutex);
                 timer = 200;
                 pthread_mutex_unlock(&timer_mutex);
-                notify_callback(tx, ty);
+                notify_callback( ty,screen_width - tx);
                 break;
             }
         }
@@ -162,6 +161,12 @@ namespace touch
      */
     int init()
     {
+        char eventFullPathName[100];
+        struct  fb_var_screeninfo fbvar;
+        struct  fb_fix_screeninfo fbfix;
+        unsigned char   *fb_mapped;
+        int		mem_size;
+
         if (listener != NULL) {
             pthread_kill(listener, 1);
             listener = NULL;
@@ -179,11 +184,7 @@ namespace touch
 
         callbacks.clear();
 
-        char eventFullPathName[100];
-        struct  fb_var_screeninfo fbvar;
-        struct  fb_fix_screeninfo fbfix;
-        unsigned char   *fb_mapped;
-        int		mem_size;
+
 
         sprintf(eventFullPathName,"%s%d",EVENT_STR, EVENT_NUM);
 
@@ -243,7 +244,8 @@ namespace touch
     }
 
     //add callback function with pointer
-    void add_callback(void (*fptr)(touch::touch_event)){
+    void add_callback(void (*fptr)(touch::touch_event))
+    {
         callbacks.insert(fptr);
     }
 
