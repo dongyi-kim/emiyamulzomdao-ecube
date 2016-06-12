@@ -241,7 +241,7 @@ int writeStr(const char* str)
 {
     unsigned char wdata;
     int i;
-    for(i =0; i < strlen(str) ;i++ )
+    for(i =0; i < str.size() ;i++ )
     {
         if (str[i] == '_')
             wdata = (unsigned char)' ';
@@ -349,6 +349,7 @@ void _tlcd(Shared* shared) {
 
     while(1)
     {
+
 /*
         string above = "";
         string under = "";
@@ -381,6 +382,7 @@ void _tlcd(Shared* shared) {
 
         functionSet();
         displayMode(1, 1, 1);
+
 
 
 

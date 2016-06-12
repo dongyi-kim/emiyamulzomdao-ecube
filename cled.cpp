@@ -70,7 +70,6 @@ void _cled(Shared* shared)
     bool liq_prev = !shared->liq_exist;
 
     while(1) {
-
         if( liq_prev != shared->liq_exist ) {
             if (shared->liq_exist) {
                 cledContr(fd, 0, 0, 0, 0);
@@ -78,6 +77,7 @@ void _cled(Shared* shared)
             else {
                 cledContr(fd, 0, 0, 0, 255);
             }
+
         }
 
         liq_prev = shared->liq_exist;
@@ -103,6 +103,7 @@ void _cled(Shared* shared)
         }
         */
         usleep(100000);
+
     }
     close(fd);
 

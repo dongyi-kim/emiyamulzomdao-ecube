@@ -414,6 +414,7 @@ void oledDisp(string str)
 
     imageLoading(str.c_str());
 
+
     /*
     switch ( Mode )
     {

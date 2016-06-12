@@ -23,6 +23,9 @@ namespace observe {
             }
             else {
                 cout<<"Observing"<<endl;
+                s->Off[0] = false;
+                s->Off[1] = false;
+                s->Off[2] = false;
 
                 while(1) {
                     if( s->mode != OBSERVE_MODE ) {

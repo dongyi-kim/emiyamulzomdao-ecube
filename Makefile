@@ -39,6 +39,9 @@ oled.o: oled.cpp
 cled.o: cled.cpp
 	$(CXX) -c cled.cpp
 
+tlcd.o: tlcd.cpp
+	$(CXX) -c tlcd.cpp
+
 receiveSensor.o: receiveSensor.cpp
 	$(CXX) -c receiveSensor.cpp
 
