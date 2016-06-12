@@ -26,5 +26,6 @@ dipsw.o: dipsw.cpp
 
 fnd.o: fnd.cpp
 	$(CXX) -c fnd.cpp
+
 clean:
 	rm *.o
