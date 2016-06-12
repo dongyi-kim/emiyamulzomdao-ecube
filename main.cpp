@@ -4,6 +4,7 @@
 #include <curl/curl.h>
 #include <pthread.h>
 #include "common.h"
+#include "gui/touch.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int main() {
          * inner while: until login success
          */
         Data data;
+
         while(1) {
             string ret;
             auth::input_account(id);

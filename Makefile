@@ -1,6 +1,6 @@
-CXX=g++
+CXX=arm-none-linux-gnueabi-g++
 
-main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o touch.o
 	$(CXX) -o main $^ -lcurl -lpthread
 
 main.o: main.cpp
@@ -26,6 +26,9 @@ dipsw.o: dipsw.cpp
 
 fnd.o: fnd.cpp
 	$(CXX) -c fnd.cpp
+
+touch.o: gui/touch.cpp
+	$(CXX) -c gui/touch.cpp
 
 clean:
 	rm *.o
