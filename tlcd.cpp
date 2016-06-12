@@ -312,19 +312,21 @@ void doHelp(void)
 
 string make_str(int value, char c)
 {
-    int reverse = 0;
-    while(value)
-    {
-        reverse += value%10;
-        value/10;
-    }
+    int temp = 100000;
+
     string str = "";
-    str += c;
-    while(reverse)
-    {
-        str += '0'+reverse%10;
-        reverse/10;
+
+    str+=c;
+
+    for(int i = 0 ; i < 6 ; i++) {
+    
+        str += (value/temp+'0');
+
+        value %= temp;
+
+        temp/=10;
     }
+
     return str;
 }
 
@@ -346,6 +348,9 @@ void _tlcd(Shared* shared) {
     string prev_above = "-1";
     string prev_under = "-1";
 
+    functionSet();
+    displayMode(1, 1, 1);
+
     while(1)
     {
 
@@ -358,7 +363,6 @@ void _tlcd(Shared* shared) {
             temp = shared->sensor.temperature;
             humid = shared->sensor.humidity;
             soil_humid = shared->sensor.soil_humidity;
-            continue;
         }
 
         else if(shared->mode == EDIT_MODE) {
@@ -378,21 +382,22 @@ void _tlcd(Shared* shared) {
         under += ' ';
         under += make_str(soil_humid, 'S');
 
-        functionSet();
-        displayMode(1, 1, 1);
-
-
-
-
-        if(prev_above != above) {
-            clearScreen(1);
-            writeStr(above.c_str());
+        above += ' ';
+        under += ' ';
+        //cout<<above<<endl;
+        //cout<<under<<endl;
+        if(prev_above == above && prev_under == under) {
+            
         }
 
+        else
+        {
 
-
-        if(prev_under != under) {
-            clearScreen(2);
+            
+            //clearScreen(2);
+            //clearScreen(1);
+            setDDRAMAddr(0,1);
+            writeStr(above.c_str());
             setDDRAMAddr(0,2);
             writeStr(under.c_str());
         }

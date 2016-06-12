@@ -120,7 +120,6 @@ int displayDotLed(int driverfile, State* s)
 
     while(1)
     {
-        usleep(ONE_LINE_TIME_U);
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {

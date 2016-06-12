@@ -418,10 +418,12 @@ void oledDisp(string str)
     pthread_mutex_lock(thread_manager::get_key());
     
     reset();
+
     Init();
 
     imageLoading(str.c_str());
 
+    pthread_mutex_unlock(thread_manager::get_oled());
     pthread_mutex_unlock(thread_manager::get_cled());
     pthread_mutex_unlock(thread_manager::get_mled());
     pthread_mutex_unlock(thread_manager::get_bled());
@@ -430,7 +432,7 @@ void oledDisp(string str)
     pthread_mutex_unlock(thread_manager::get_dips());
     pthread_mutex_unlock(thread_manager::get_buzz());
     pthread_mutex_unlock(thread_manager::get_key());
-    pthread_mutex_unlock(thread_manager::get_oled());
+    
     
     return;
 }
@@ -448,24 +450,24 @@ void _oled(Shared* shared)
     Data* d = &(shared->data);
     bool chk[4];
     
+    string prev = "", cur;
 
     while(1) {
         chk[0] = s->humidity >= d->humidity;
         chk[1] = s->temperature >= d->temperature;
         chk[2] = s->illumination >= d->illumination;
         chk[3] = s->soil_humidity <= d->soil_humidity;
-
         if(s->illumination <= 10)
         {
-            oledDisp("sleep.img");
+            cur = "sleep.img";
         }
-        if(chk[0] && chk[1] && chk[2] && chk[3])
+        else if(chk[0] && chk[1] && chk[2] && chk[3])
         {
-            oledDisp("enough.img");
+            cur = "enough.img";
         }
         else
         {
-            oledDisp("not_enough.img");
+            cur = "not_enough.img";
         }
         /*
         if(shared->mode == EDIT_MODE)
@@ -479,7 +481,13 @@ void _oled(Shared* shared)
         
         oledDisp(cur);
         */
-        
+
+        if(cur != prev)
+        {
+            oledDisp(cur);
+        }
+        prev = cur;
+        usleep(1000000);
     }
     close(fd);
 

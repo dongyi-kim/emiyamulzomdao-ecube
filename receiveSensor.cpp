@@ -7,6 +7,7 @@
 #include <termios.h>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #include "common.h"
 
 using namespace std;
@@ -100,12 +101,25 @@ void _receive(Shared* shared)
             of characters read is smaller than the number of chars available,
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
-            res = read(fd, buf, 255);
-            buf[res] = 0;             /* set end of string, so we can printf */
+            
+            //buf[0] = 2;
+            //res = write(fd, buf, 1);
 
-            printf("%s\n", buf);
-            sscanf(buf, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
-        }
+            //printf("%d\n", res);
+
+            sleep(5);
+            buf[0] = 1;
+            res = write(fd, buf, 1);
+
+            printf("%d\n", res);
+
+            res = read(fd, str, 255);
+            str[res] = 0;             /* set end of string, so we can printf */
+
+            printf("%s\n", str);
+            sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+            sleep(5);
+    }
 /* restore the old port settings */
     tcsetattr(fd, TCSANOW, &oldtio);
     return;

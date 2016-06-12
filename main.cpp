@@ -84,9 +84,6 @@ int main() {
             int isEdit = dip&(1<<7);
             int logout = dip&(1<<6);
 
-            int cledValue = dip&(1<<5);
-
-            shared.liq_exist = cledValue;
 
             if(logout) {
                 shared.mode = NOT_AUTHORIZED;

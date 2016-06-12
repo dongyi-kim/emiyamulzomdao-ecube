@@ -71,7 +71,7 @@ void _cled(Shared* shared)
 
     while(1) {
         if( liq_prev != shared->liq_exist ) {
-            if (shared->liq_exist) {
+            if (!shared->liq_exist) {
                 cledContr(fd, 0, 0, 0, 0);
             }
             else {
@@ -102,7 +102,6 @@ void _cled(Shared* shared)
             cledContr(fd, 3, 0, 0, 0);
         }
         */
-        usleep(100000);
 
     }
     close(fd);
