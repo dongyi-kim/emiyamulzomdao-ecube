@@ -28,6 +28,7 @@ namespace touch
         touch_event(int x, int y, int prev_x = -1, int prev_y = -1)
                 : x(x), y(y), prev_x(prev_x), prev_y(prev_y)
         {
+            event_code = 0;
             if( x >= 0 && y >= 0){
                 event_code |= EVENT_TOUCH;
                 if(prev_x < 0 || prev_y < 0){
@@ -35,7 +36,7 @@ namespace touch
                 }else{
                     event_code |= EVENT_TOUCH_PRESS;
                     long long dist = (long long) (x-prev_x) * (x-prev_x) + (y - prev_y) * (prev_y);
-                    if(dist > 10){
+                    if(dist > 1){
                         event_code |= EVENT_TOUCH_MOVE;
                     }
                 }
@@ -47,9 +48,9 @@ namespace touch
         }
     };
 
-
     int init();
-    void add_callback( void(*)(touch_event) );
 
+    void add_callback( void(*)(touch_event) );
+    void remove_callback( void(*)(touch_event) );
 }
 #endif //EMIYAMULZOMDAO_ECUBE_TOUCH_H

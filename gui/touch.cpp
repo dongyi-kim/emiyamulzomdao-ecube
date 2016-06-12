@@ -1,6 +1,10 @@
 //
 // Created by parallels on 6/12/16.
 //
+
+/*
+ *
+ */
 #include "touch.h"
 
 #include <stdio.h>
@@ -36,19 +40,64 @@ using namespace std;
 pthread_t listener = NULL;
 set<void(*)(touch::touch_event)> callbacks;
 
+
 int	fb_fd = NULL;
 int fp    = NULL;
+int prev_x, prev_y;
+int cur_x, cur_y;
 
-void read_coordinate(int &tx, int &ty){
+int timer = 0;
+pthread_cond_t timer_cond;
+pthread_mutex_t timer_mutex;
+pthread_mutex_t callback_mutex;
+pthread_mutex_t counter_mutex;
 
-    int readSize;
-    maxSize = sizeof(event);
+void notify_callback(int x, int y){
+    pthread_mutex_lock(&callback_mutex);
+    //call callbacks;
+    prev_x = cur_x;
+    prev_y = cur_y;
+    cur_x = x;
+    cur_y = y;
+    touch::touch_event e(cur_x, cur_y, prev_x, prev_y);
+    set<void(*)(touch::touch_event)>::iterator it = callbacks.begin();
+    while(it != callbacks.end())
+    {
+        (*it)(e);
+        it++;
+    }
+    pthread_mutex_unlock(&callback_mutex);
+}
+
+void *counter(void *nullable){
+    while(1){
+        usleep(50000);
+        pthread_mutex_lock(&timer_mutex);
+
+        if(timer > 0)
+        {
+            timer = max(0, timer-50);
+            printf("timer : %d\n", timer);
+            if(timer == 0){
+                pthread_mutex_unlock(&timer_mutex);
+                notify_callback(-1, -1);
+                pthread_mutex_lock(&timer_mutex);
+            }
+        }
+        pthread_mutex_unlock(&timer_mutex);
+    }
+}
+
+
+void read_coordinate(){
+
     while(1)
     {
         int readSize;
         struct input_event event;
-        readSize = read(fp, &event, sizeof(event));
+        int tx, ty;
 
+        readSize = read(fp, &event, sizeof(event));
         //printf("check read Size : %d(%d)\n", readSize, sizeof(event));
         if ( readSize == sizeof(event) )
         {
@@ -70,6 +119,13 @@ void read_coordinate(int &tx, int &ty){
             }
             else if ((event.type == EV_SYN) && (event.code == SYN_REPORT ))
             {
+                //when touch event listened,
+                //set timer to 200ms
+                //timer_mutex should be used to prevent from being on race condition
+                pthread_mutex_lock(&timer_mutex);
+                timer = 200;
+                pthread_mutex_unlock(&timer_mutex);
+                notify_callback(tx, ty);
                 break;
             }
         }
@@ -77,38 +133,35 @@ void read_coordinate(int &tx, int &ty){
 
 }
 
+/* loop listening touch even
+ *
+ */
 void *listen(void *nullable)
 {
-    int prev_x, prev_y;
-    int cur_x, cur_y;
+    pthread_t counter_thread;
+    pthread_cond_init(&timer_cond, NULL);
+    pthread_mutex_init(&timer_mutex, NULL);
+    pthread_mutex_init(&callback_mutex, NULL);
+    pthread_mutex_init(&counter_mutex, NULL);
     prev_x = prev_y = cur_x = cur_y = -1;
+    pthread_create(&counter_thread, NULL, &counter, NULL);
     while(1)
     {
-        prev_x = cur_x;
-        prev_y = cur_y;
-
         //read touched coordinate
-        read_coordinate(cur_x, cur_y);
-
-        //generate touch event data;
-        touch::touch_event e(cur_x, cur_y, prev_x, prev_y);
-
-        //call callbacks;
-        set<void(*)(touch::touch_event)>::iterator it = callbacks.begin();
-        while(it != callbacks.end())
-        {
-            (*it)(e);
-            it++;
-        }
-
-        //sleep for a second
+        read_coordinate();
         //usleep(50);
     }
 }
 
 
-namespace touch{
-    int init() {
+namespace touch
+{
+    /**
+     * initialize touch-sensor
+     * init() function should be called only once
+     */
+    int init()
+    {
         if (listener != NULL) {
             pthread_kill(listener, 1);
             listener = NULL;
@@ -184,12 +237,19 @@ namespace touch{
 
         mem_size    =   screen_width * screen_height * 4;
 
+        //start listener thread
         pthread_create(&listener, NULL, &listen, NULL);
-
         return 0;
     }
 
+    //add callback function with pointer
     void add_callback(void (*fptr)(touch::touch_event)){
         callbacks.insert(fptr);
+    }
+
+    //remove callback function pointer
+    void remove_callback(void (*fptr)(touch::touch_event))
+    {
+        callbacks.erase(fptr);
     }
 }
