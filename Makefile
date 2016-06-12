@@ -45,5 +45,8 @@ tlcd.o: tlcd.cpp
 receiveSensor.o: receiveSensor.cpp
 	$(CXX) -c receiveSensor.cpp
 
+touch.o: gui/touch.cpp
+	$(CXX) -c gui/touch.cpp
+
 clean:
 	rm *.o
