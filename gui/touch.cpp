@@ -38,20 +38,6 @@ set<void(*)(touch::touch_event)> callbacks;
 
 int	fb_fd = NULL;
 int fp    = NULL;
-int readSize;
-int maxSize;
-bool read_done;
-struct input_event event;
-
-void* read_from_device(void* eptr){
-    read_done = false;
-    printf("read (%d)\n", maxSize);
-    readSize = 0;
-    readSize = read(fp, &event, sizeof(event));
-    printf("read done\n");
-    read_done = true;
-    pthread_exit(NULL);
-}
 
 void read_coordinate(int &tx, int &ty){
 
@@ -59,25 +45,18 @@ void read_coordinate(int &tx, int &ty){
     maxSize = sizeof(event);
     while(1)
     {
+        int readSize;
+        struct input_event event;
+        readSize = read(fp, &event, sizeof(event));
 
-        pthread_t read_thread;
-        pthread_create(&read_thread, NULL, &read_from_device, NULL);
-        usleep(1000);
-        pthread_cancel(read_thread);
-        pthread_join(read_thread, NULL);
-//        readSize = read(fp, &event, sizeof(event));
-
-        if(!read_done)
-        {
-            tx = ty = -1;
-            break;
-        }
-        printf("check read Size : %d(%d)\n", readSize, sizeof(event));
+        //printf("check read Size : %d(%d)\n", readSize, sizeof(event));
         if ( readSize == sizeof(event) )
         {
 			//printf("type :%04X \n",event.type);
 			//printf("code :%04X \n",event.code);
 			//printf("value:%08X \n",event.value);
+
+
             if( event.type == EV_ABS )
             {
                 if (event.code == ABS_MT_POSITION_X )
@@ -123,7 +102,7 @@ void *listen(void *nullable)
         }
 
         //sleep for a second
-        usleep(50);
+        //usleep(50);
     }
 }
 
