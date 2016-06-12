@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <string>
+#include <pthread>
 #include <iostream>
 using namespace std;
 
@@ -32,8 +33,10 @@ namespace display{
     typedef unsigned long pixel_t;
     unsigned long   bmpdata[1280*800];
 
-    int init(){
+    pthread_mutex_t display_mutex;
 
+    int init(){
+        pthread_mutex_init(&display_mutex, NULL);
 
 
     }
@@ -48,8 +51,8 @@ namespace display{
 
     void draw_bmp(const vector<vector<unsigned long> > &bitmap, int x, int y )
     {
-        int fbfd;
 
+        int fbfd;
         int coor_x, coor_y;
         int cols = 0, rows = 0;
         int mem_size;
@@ -61,9 +64,9 @@ namespace display{
         unsigned long   *ptr;
         struct  fb_var_screeninfo fbvar;
         struct  fb_fix_screeninfo fbfix;
+        pthread_mutex_lock(&display_mutex);
 
         int ecnt = 0;
-        cout << ++ecnt << endl;
         if( (fbfd = open(FBDEV_FILE, O_RDWR)) < 0)
         {
             printf("%s: open error\n", FBDEV_FILE);
@@ -118,6 +121,7 @@ namespace display{
         cout << ++ecnt << endl;
         munmap( pfbmap, mem_size);
         close( fbfd);
+        pthread_mutex_lock(&display_mutex);
     }
 
     void read_bmp(vector<vector<unsigned long> > &bitmap, const string& filename)
@@ -205,7 +209,7 @@ namespace display{
                 char g   =   *(data + (k + i * 3 + 1));
                 char r   =   *(data + (k + i * 3 + 2));
 
-                bitmap[j][i] = ((r<<16) | (g<<8) | b);
+                bitmap[rows-j-1][i] = ((r<<16) | (g<<8) | b);
             }
         }
         fclose(fp);
