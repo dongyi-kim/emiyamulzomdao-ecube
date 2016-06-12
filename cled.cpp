@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "common.h"
+#include "thread_manager.h"
 
 using namespace std;
 
@@ -45,7 +46,11 @@ void cledContr(int driverfile, int idx_led, int r, int g, int b)
     colorArray[INDEX_REG_LED] =(unsigned short) r;
     colorArray[INDEX_GREEN_LED] =(unsigned short) g;
     colorArray[INDEX_BLUE_LED] =(unsigned short) b;
+
+    pthread_mutex_lock(thread_manager::get_a());
     write(driverfile, &colorArray ,6);
+    pthread_mutex_unlock(thread_manager::get_a());
+
     return;
 }
 
@@ -61,13 +66,21 @@ void _cled(Shared* shared)
         perror("driver  open error.\n");
         return;
     }
+
+    bool liq_prev = !shared->liq_exist;
+
     while(1) {
-        if (shared->liq_exist) {
-            cledContr(fd, 0, 0, 0, 0);
+
+        if( liq_prev != shared->liq_exist ) {
+            if (shared->liq_exist) {
+                cledContr(fd, 0, 0, 0, 0);
+            }
+            else {
+                cledContr(fd, 0, 0, 0, 255);
+            }
         }
-        else {
-            cledContr(fd, 0, 0, 0, 255);
-        }
+
+        liq_prev = shared->liq_exist;
     /*
         if () {
             cledContr(fd, 1, 0, 255, 0);
@@ -89,7 +102,7 @@ void _cled(Shared* shared)
             cledContr(fd, 3, 0, 0, 0);
         }
         */
-        usleep(5000);
+        usleep(100000);
     }
     close(fd);
 

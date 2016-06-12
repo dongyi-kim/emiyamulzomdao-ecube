@@ -4,5 +4,5 @@
 
 #ifndef SYSPROG_MLED_H
 #define SYSPROG_MLED_H
-void* mled(void* s);
+extern void* mled(void* s);
 #endif //SYSPROG_MLED_H

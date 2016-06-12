@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "thread_manager.h"
 
 #define DRIVER_DIPSW		"/dev/cndipsw"
 
@@ -23,9 +24,10 @@ int dipsw()
         perror("driver  open error.\n");
         return -1;
     }
+    pthread_mutex_lock(thread_manager::get_a());
     read(fd, &retvalue, 8);
+    pthread_mutex_unlock(thread_manager::get_a());
     retvalue &= 0xFF;
-    printf("0x%X\n", retvalue);
     close(fd);
 
     return retvalue;

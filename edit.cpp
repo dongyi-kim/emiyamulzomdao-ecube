@@ -10,6 +10,8 @@
 #include "common.h"
 #include "buzzer.h"
 #include "curl_common.h"
+#include "thread_manager.h"
+
 using namespace std;
 
 const int keyMap[17] = {-1,-1,1,2,3,-1,4,5,6,-1,7,8,9,-1,-1,0,-1};
@@ -67,8 +69,9 @@ namespace edit {
                     if( s->mode != EDIT_MODE ) {
                         break;
                     }
-
+                    pthread_mutex_lock(thread_manager::get_a());
                     read(fd,&rdata,4);
+                    pthread_mutex_unlock(thread_manager::get_a());
                     if(rdata == 0)
                     {
                         continue;

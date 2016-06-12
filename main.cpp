@@ -16,6 +16,7 @@
 
 using namespace std;
 
+
 int main() {
     /*
      * outer while: login -> sensor, edit -> logout -> ...
@@ -40,7 +41,7 @@ int main() {
     pthread_create(&oled_thread, NULL, oled, (void*)&shared);
     pthread_create(&cled_thread, NULL, cled, (void*)&shared);
     pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
-    pthread_create(&receive_thread, NULL, receive, (void*)&shared);
+    //pthread_create(&receive_thread, NULL, receive, (void*)&shared);
 
     while(1) {
         string id;
@@ -83,6 +84,10 @@ int main() {
             int isEdit = dip&(1<<7);
             int logout = dip&(1<<6);
 
+            int cledValue = dip&(1<<5);
+
+            shared.liq_exist = cledValue;
+
             if(logout) {
                 shared.mode = NOT_AUTHORIZED;
                 break;
@@ -95,7 +100,7 @@ int main() {
                 shared.mode = OBSERVE_MODE;
             }
 
-            usleep(100000);
+            usleep(1000000);
         }
     }
 

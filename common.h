@@ -1,4 +1,5 @@
 #include <iostream>
+#include <pthread.h>
 using namespace std;
 
 #ifndef SYSPROG_COMMON_H
@@ -11,7 +12,12 @@ using namespace std;
 class Data {
 public:
     int illumination, temperature, humidity, soil_humidity;
-    Data(){}
+    Data(){
+        illumination = 0;
+        temperature = 0;
+        humidity = 0;
+        soil_humidity = 0;
+    }
     Data(int illumination, int temperature, int humidity, int soil_humidity) {
         this->illumination = illumination;
         this->temperature = temperature;

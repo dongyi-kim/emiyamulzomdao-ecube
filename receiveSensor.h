@@ -4,5 +4,5 @@
 
 #ifndef SYSPROG_RECEIVESENSOR_H
 #define SYSPROG_RECEIVESENSOR_H
-void* receive(void* shared);
+extern void* receive(void* shared);
 #endif //SYSPROG_RECEIVESENSOR_H

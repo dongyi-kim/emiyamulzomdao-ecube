@@ -4,5 +4,5 @@
 
 #ifndef SYSPROG_CLED_H
 #define SYSPROG_CLED_H
-void* cled(void* shared);
+extern void* cled(void* shared);
 #endif //SYSPROG_CLED_H

@@ -102,10 +102,6 @@ void _receive(Shared* shared)
             to the actual number of characters actually read */
             res = read(fd, buf, 255);
             buf[res] = 0;             /* set end of string, so we can printf */
-            if(shared->mode == -1)
-            {
-                continue;
-            }
 
             printf("%s\n", buf);
             sscanf(buf, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);

@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <string>
 #include "common.h"
+#include "thread_manager.h"
 
 using namespace std;
 
@@ -72,15 +73,24 @@ int IsBusy(void)
     unsigned short wdata, rdata;
 
     wdata = SIG_BIT_RW;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = SIG_BIT_RW | SIG_BIT_E;
-    write(fd ,&wdata,2);
 
+    pthread_mutex_lock(thread_manager::get_a());
+    write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
+
+    pthread_mutex_lock(thread_manager::get_a());
     read(fd,&rdata ,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = SIG_BIT_RW;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     if (rdata &  BUSY_BIT)
         return 1;
@@ -96,13 +106,19 @@ int tlcd_writeCmd(unsigned short cmd)
         return 0;
 
     wdata = cmd;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = cmd | SIG_BIT_E;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = cmd ;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     return 1;
 }
@@ -178,13 +194,19 @@ int writeCh(unsigned short ch)
         return 0;
 
     wdata = SIG_BIT_RS | ch;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = SIG_BIT_RS | ch | SIG_BIT_E;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
 
     wdata = SIG_BIT_RS | ch;
+    pthread_mutex_lock(thread_manager::get_a());
     write(fd ,&wdata,2);
+    pthread_mutex_unlock(thread_manager::get_a());
     usleep(1000);
     return 1;
 
@@ -215,7 +237,7 @@ int functionSet(void)
     return 1;
 }
 
-int writeStr(char* str)
+int writeStr(const char* str)
 {
     unsigned char wdata;
     int i;
@@ -290,11 +312,11 @@ void doHelp(void)
 
 string make_str(int value, char c)
 {
-    string str;
+    string str = "";
     str += c;
     if(value == 0)
     {
-        l += '0';
+        str += '0';
     }
     else
     {
@@ -310,6 +332,11 @@ string make_str(int value, char c)
 
 void _tlcd(Shared* shared) {
 
+    int light;
+    int temp;
+    int humid;
+    int soil_humid;
+
     fd = open(DRIVER_TLCD, O_RDWR);
     if ( fd < 0 )
     {
@@ -317,22 +344,34 @@ void _tlcd(Shared* shared) {
         return;
     }
 
+    string prev_above = "-1";
+    string prev_under = "-1";
+
     while(1)
     {
-        if(shared->mode == -1)
+/*
+        string above = "";
+        string under = "";
+
+        if(shared->mode == OBSERVE_MODE)
         {
-            clearScreen(1);
-            clearScreen(2);
+            light = shared->sensor.illumination;
+            temp = shared->sensor.temperature;
+            humid = shared->sensor.humidity;
+            soil_humid = shared->sensor.soil_humidity;
             continue;
         }
-        int light = shared->sensor.illumination;
-        int temp = shared->sensor.temperature;
-        int humid = shared->sensor.humidity;
-        int soil_humid = shared->sensor.soil_humidity;
-        string above;
-        string under;
-        above.resize(15);
-        under.resize(15);
+
+        else if(shared->mode == EDIT_MODE) {
+            light = shared->data.illumination;
+            temp = shared->data.temperature;
+            humid = shared->data.humidity;
+            soil_humid = shared->data.soil_humidity;
+
+
+
+        }
+
         above += make_str(light, 'L');
         above += ' ';
         above += make_str(temp, 'T');
@@ -342,14 +381,29 @@ void _tlcd(Shared* shared) {
 
         functionSet();
         displayMode(1, 1, 1);
-        clearScreen(2);
-        clearScreen(1);
-        writeStr(above.c_str());
-        setDDRAMAddr(0,2);
-        writeStr(under.c_str());
+
+
+
+        if(prev_above != above) {
+            clearScreen(1);
+            writeStr(above.c_str());
+        }
+
+
+
+        if(prev_under != under) {
+            clearScreen(2);
+            setDDRAMAddr(0,2);
+            writeStr(under.c_str());
+        }
+
+        prev_above = above;
+        prev_under = under;
+        */
+        usleep(100000);
     }
     close(fd);
-    retrun;
+    return;
 }
 
 void* tlcd(void* shared) {

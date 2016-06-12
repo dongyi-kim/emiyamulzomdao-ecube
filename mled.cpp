@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include "common.h"
+#include "thread_manager.h"
 
 #define DRIVER_MLED		"/dev/cnmled"
 
@@ -119,13 +120,16 @@ int displayDotLed(int driverfile, State* s)
 
     while(1)
     {
+
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {
                 wdata[0] = clear[0][j];
                 wdata[1] = clear[1][j];
 
+                pthread_mutex_lock(thread_manager::get_a());
                 write(driverfile,(unsigned char*)wdata, 4);
+                pthread_mutex_unlock(thread_manager::get_a());
                 usleep(ONE_LINE_TIME_U);
             }
 
@@ -142,8 +146,9 @@ int displayDotLed(int driverfile, State* s)
                         wdata[0] = config[_state-1][0][j];
                         wdata[1] = config[_state-1][1][j];
                     }
-
+                    pthread_mutex_lock(thread_manager::get_a());
                     write(driverfile,(unsigned char*)wdata, 4);
+                    pthread_mutex_unlock(thread_manager::get_a());
                     usleep(ONE_LINE_TIME_U);
                 }
                 usleep(1000);
@@ -152,7 +157,8 @@ int displayDotLed(int driverfile, State* s)
             init_flag = true;
         }
 
-        usleep(50000/5);
+        usleep(10000);
+
     }
     wdata[0]= 0;
     wdata[1]= 0;

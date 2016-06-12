@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <vector>
 #include "common.h"
+#include "thread_manager.h"
 
 using namespace std;
 
@@ -236,7 +237,7 @@ int setCmdLock(int bLock)
     return 1;
 }
 
-int imageLoading(char* fileName)
+int imageLoading(const char* fileName)
 {
     int imgfile;
     unsigned char* data;
@@ -404,20 +405,14 @@ int Init(void)
 /*
 static int Mode;
 */
-void oledDisp(Data* s, Data* d)
+void oledDisp(string str)
 {
-    int writeNum;
-    unsigned char wdata[10];
-    int readNum;
-    unsigned short* rdata = NULL;
-    unsigned short wCmd[10];
-    int cnt = 0;
+    reset();
+    usleep(10000);
+    Init();
+    usleep(10000);
 
-    bool chk[4];
-    chk[0] = s->humidity >= d->humidity;
-    chk[1] = s->temperature >= d->temperature;
-    chk[2] = s->illumination >= d->illumination;
-    chk[3] = s->soil_humidity >= d->soil_humidity;
+    imageLoading(str.c_str());
 
     /*
     switch ( Mode )
@@ -451,30 +446,6 @@ void oledDisp(Data* s, Data* d)
         break;
     }
     */
-    for(int i = 0 ; i < 4 ; i++)
-    {
-        if(chk[i])
-        {
-            cnt++;
-        }
-    }
-
-    if(cnt == 4)
-    {
-        imageLoading("first.img");
-    }
-    else if(cnt == 3)
-    {
-        imageLoading("second.img");
-    }
-    else if(cnt == 2)
-    {
-        imageLoading("third.img");
-    }
-    else
-    {
-        Init();
-    }
 
 
     /*
@@ -498,15 +469,70 @@ void _oled(Shared* shared)
         perror("driver open error.\n");
         return;
     }
+    string prev = "", cur = "";
+
     while(1) {
-        if(shared->mode == -1)
+//        int writeNum;
+//        unsigned char wdata[10];
+//        int readNum;
+//        unsigned short* rdata = NULL;
+//        unsigned short wCmd[10];
+//        int cnt = 0;
+//        Data* s = &(shared->sensor);
+//        Data* d = &(shared->data);
+//        bool chk[4];
+//        chk[0] = s->humidity >= d->humidity;
+//        chk[1] = s->temperature >= d->temperature;
+//        chk[2] = s->illumination >= d->illumination;
+//        chk[3] = s->soil_humidity >= d->soil_humidity;
+//
+//        for(int i = 0 ; i < 4 ; i++)
+//        {
+//            if(chk[i])
+//            {
+//                cnt++;
+//            }
+//        }
+//
+//        cout << cur << endl;
+//        cout << prev << endl;
+
+
+        if(shared->mode == EDIT_MODE)
         {
-            Init();
+            cur = "second.img";
+        }
+        else {
+            cur = "first.img";
+        }
+//        else if(cnt == -1)
+//        {
+//            cur = "first.img";
+//        }
+//        else if(cnt == -1)
+//        {
+//            cur = "second.img";
+//        }
+//        else if(cnt == -1)
+//        {
+//            cur = "third.img";
+//        }
+//        if(cur != prev)
+//        {
+//            pthread_mutex_lock(thread_manager::get_a());
+//            oledDisp(cur.c_str());
+//            pthread_mutex_unlock(thread_manager::get_a());
+//        }
+//        prev = cur;
+
+        if( cur == prev ) {
             continue;
         }
-
-        oledDisp(&shared->sensor, &shared->data);
-        usleep(5000);
+        prev = cur;
+        pthread_mutex_lock(thread_manager::get_a());
+        oledDisp(cur);
+        pthread_mutex_unlock(thread_manager::get_a());
+        usleep(1000000);
     }
     close(fd);
 

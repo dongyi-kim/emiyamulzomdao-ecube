@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "common.h"
+#include "thread_manager.h"
 
 #define DRIVER_SEGMENT		"/dev/cnfnd"
 
@@ -74,8 +75,10 @@ int fndDisp(int driverfile, int* num , int dotflag)
     {
         dotEnable[i] = dotflag & (0x1 << i);
     }
+
     // if 6 fnd
     while(1) {
+
         if( (*num) == -1 ) {
             for(i = 5 ; i >= 0 ; i--)
             {
@@ -93,25 +96,28 @@ int fndDisp(int driverfile, int* num , int dotflag)
                 temp /= 10;
             }
         }
+        int duration = 1;
+        while(duration--) {
+            cSelCounter = 0;
+            while (cSelCounter < MAX_FND_NUM) {
+                wdata = segNum[fndChar[cSelCounter]] | segSelMask[cSelCounter];
+                if (dotEnable[cSelCounter])
+                    wdata |= DOT_OR_DATA;
+                pthread_mutex_lock(thread_manager::get_a());
+                write(driverfile, &wdata, 2);
+                pthread_mutex_unlock(thread_manager::get_a());
+                cSelCounter++;
 
-        cSelCounter = 0;
-        while(cSelCounter < MAX_FND_NUM)
-        {
-            wdata = segNum[fndChar[cSelCounter]]  | segSelMask[cSelCounter] ;
-            if (dotEnable[cSelCounter])
-                wdata |= DOT_OR_DATA;
 
-            write(driverfile,&wdata,2);
-            cSelCounter++;
+                usleep(ONE_SEG_DISPLAY_TIME_USEC);
 
-
-            usleep(ONE_SEG_DISPLAY_TIME_USEC);
-
+            }
+            usleep(1000000);
         }
         wdata = 0;
+        pthread_mutex_lock(thread_manager::get_a());
         write(driverfile, &wdata, 2);
-
-        usleep(500);
+        pthread_mutex_unlock(thread_manager::get_a());
     }
 
     return 1;
@@ -129,7 +135,9 @@ void segment(Shared* shared)
         return;
     }
     fnd_changemode(1);
+
     fndDisp(fd, &shared->segValue, 0);
+
     fnd_changemode(0);
     close(fd);
 

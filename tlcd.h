@@ -4,5 +4,5 @@
 
 #ifndef SYSPROG_TLCD_H
 #define SYSPROG_TLCD_H
-void* tlcd(void* shared);
+extern void* tlcd(void* shared);
 #endif //SYSPROG_TLCD_H

@@ -4,5 +4,5 @@
 
 #ifndef SYSPROG_BLED_H
 #define SYSPROG_BLED_H
-void* bled(void* s);
+extern void* bled(void* s);
 #endif //SYSPROG_BLED_H

@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "common.h"
+#include "thread_manager.h"
 
 using namespace std;
 
@@ -31,10 +32,16 @@ void ledContr(int driverfile, Data* s, Data* d)
     {
         ledOff = (sh-std_sh)/70;
     }
+    if(sh == 0)
+    {
+        ledOff = 8;
+    }
+
+
 
     // control led
     ledOn = MAX_LED_NO - ledOff;
-    for(int i = 1 ; i < MAX_LED_NO ; i++)
+    for(int i = 0 ; i < MAX_LED_NO ; i++)
     {
         read(driverfile, &rdata, 4);
         temp = 1;
@@ -66,14 +73,10 @@ void _bled(Shared* shared)
         return;
     }
     while(1) {
-        if(mode == -1)
-        {
-
-            continue;
-        }
-
+        pthread_mutex_lock(thread_manager::get_a());
         ledContr(fd, &shared->sensor, &shared->data);
-        usleep(5000);
+        pthread_mutex_unlock(thread_manager::get_a());
+        usleep(100000);
     }
     close(fd);
 
