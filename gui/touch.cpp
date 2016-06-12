@@ -40,29 +40,32 @@ int fp    = NULL;
 void read_coordinate(int &tx, int &ty){
     struct input_event event;
     int readSize;
-    readSize = read(fp, &event, sizeof(event));
-    if ( readSize == sizeof(event) )
+    while(1)
     {
+        readSize = read(fp, &event, sizeof(event));
+        if ( readSize == sizeof(event) )
+        {
 //			printf("type :%04X \n",event.type);
 //			printf("code :%04X \n",event.code);
 //			printf("value:%08X \n",event.value);
-        if( event.type == EV_ABS )
-        {
-            if (event.code == ABS_MT_POSITION_X )
+            if( event.type == EV_ABS )
             {
-                tx = event.value*screen_width/MAX_TOUCH_X;
+                if (event.code == ABS_MT_POSITION_X )
+                {
+                    tx = event.value*screen_width/MAX_TOUCH_X;
+                }
+                else if ( event.code == ABS_MT_POSITION_Y )
+                {
+                    ty = event.value*screen_height/MAX_TOUCH_Y;
+                }
             }
-            else if ( event.code == ABS_MT_POSITION_Y )
+            else if ((event.type == EV_SYN) && (event.code == SYN_REPORT ))
             {
-                ty = event.value*screen_height/MAX_TOUCH_Y;
+                break;
             }
-        }
-        else if ((event.type == EV_SYN) && (event.code == SYN_REPORT ))
-        {
-            tx = -1;
-            ty = -1;
         }
     }
+
 }
 
 void *listen(void *nullable)
