@@ -59,7 +59,7 @@ int main() {
                 int illum, temp, humid, s_humid;
                 sscanf(ret.c_str(), "%d %d %d %d", &illum, &temp, &humid, &s_humid);
                 data = Data(illum, temp, humid, s_humid);
-
+                
                 break;
             }
             else {

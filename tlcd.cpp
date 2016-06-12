@@ -215,11 +215,11 @@ int functionSet(void)
     return 1;
 }
 
-int writeStr(char* str)
+int writeStr(string str)
 {
     unsigned char wdata;
     int i;
-    for(i =0; i < strlen(str) ;i++ )
+    for(i =0; i < str.size() ;i++ )
     {
         if (str[i] == '_')
             wdata = (unsigned char)' ';
@@ -294,7 +294,7 @@ string make_str(int value, char c)
     str += c;
     if(value == 0)
     {
-        l += '0';
+        str += '0';
     }
     else
     {
@@ -319,7 +319,7 @@ void _tlcd(Shared* shared) {
 
     while(1)
     {
-        if(shared->mode == -1)
+        if(shared->Off[0])
         {
             clearScreen(1);
             clearScreen(2);
@@ -347,9 +347,10 @@ void _tlcd(Shared* shared) {
         writeStr(above.c_str());
         setDDRAMAddr(0,2);
         writeStr(under.c_str());
+        usleep(5000);
     }
     close(fd);
-    retrun;
+    return;
 }
 
 void* tlcd(void* shared) {

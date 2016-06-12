@@ -18,7 +18,7 @@ using namespace std;
 #define MAX_LED_NO		8
 #define DRIVER_BUSLED		"/dev/cnled"
 
-void ledContr(int driverfile, Data* s, Data* d)
+void ledContr(int driverfile, bool off, Data* s, Data* d)
 {
     int ledOn = 8;
     int ledOff = 0;
@@ -30,6 +30,10 @@ void ledContr(int driverfile, Data* s, Data* d)
     if(std_sh < sh)
     {
         ledOff = (sh-std_sh)/70;
+    }
+    if(off)
+    {
+        ledOff = 8;
     }
 
     // control led
@@ -66,13 +70,7 @@ void _bled(Shared* shared)
         return;
     }
     while(1) {
-        if(mode == -1)
-        {
-
-            continue;
-        }
-
-        ledContr(fd, &shared->sensor, &shared->data);
+        ledContr(fd, &shared->Off[2], &shared->sensor, &shared->data);
         usleep(5000);
     }
     close(fd);

@@ -38,8 +38,10 @@ public:
     int mode;
     std::string id;
     bool liq_exist;
+    bool Off[10];//0-tlcd, 1-oled, 2-bled, 3-seg, 4-mled, 5-buz, 6-cled, 7-dips 8-key
     int segValue;
     Shared(){
+        Off = {true, true, true, true, true, true, true, true, true, true};
         liq_exist = true;
         segValue = -1;
         this->mode = -1;

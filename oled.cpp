@@ -404,8 +404,13 @@ int Init(void)
 /*
 static int Mode;
 */
-void oledDisp(Data* s, Data* d)
+void oledDisp(bool off, Data* s, Data* d)
 {
+    if(off)
+    {
+        Init();
+        return;
+    }
     int writeNum;
     unsigned char wdata[10];
     int readNum;
@@ -418,6 +423,7 @@ void oledDisp(Data* s, Data* d)
     chk[1] = s->temperature >= d->temperature;
     chk[2] = s->illumination >= d->illumination;
     chk[3] = s->soil_humidity >= d->soil_humidity;
+
 
     /*
     switch ( Mode )
@@ -471,10 +477,6 @@ void oledDisp(Data* s, Data* d)
     {
         imageLoading("third.img");
     }
-    else
-    {
-        Init();
-    }
 
 
     /*
@@ -499,13 +501,7 @@ void _oled(Shared* shared)
         return;
     }
     while(1) {
-        if(shared->mode == -1)
-        {
-            Init();
-            continue;
-        }
-
-        oledDisp(&shared->sensor, &shared->data);
+        oledDisp(&shared->Off[1], &shared->sensor, &shared->data);
         usleep(5000);
     }
     close(fd);

@@ -62,6 +62,10 @@ void _cled(Shared* shared)
         return;
     }
     while(1) {
+        if(shared->Off[6])
+        {
+            continue;
+        }
         if (shared->liq_exist) {
             cledContr(fd, 0, 0, 0, 0);
         }
@@ -89,7 +93,7 @@ void _cled(Shared* shared)
             cledContr(fd, 3, 0, 0, 0);
         }
         */
-        usleep(5000);
+        usleep(1000);
     }
     close(fd);
 
