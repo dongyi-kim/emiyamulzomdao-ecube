@@ -6,6 +6,7 @@
 #include "touch.h"
 #include "display.h"
 #include<vector>
+#include<cstdio>
 #include<string>
 using namespace std;
 vector<vector<unsigned long> > pages[4];
@@ -15,7 +16,9 @@ namespace gui{
 
     void on_touch(touch::touch_event e)
     {
-        
+        if(e.event_code & touch::EVENT_TOUCH_DOWN) {
+
+        }
     }
 
     void draw_page(int page)

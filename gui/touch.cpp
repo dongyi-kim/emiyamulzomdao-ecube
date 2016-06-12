@@ -113,7 +113,7 @@ void read_coordinate(){
                 }
                 else if ( event.code == ABS_MT_POSITION_Y )
                 {
-                    lcd_x = event.value*screen_height/MAX_TOUCH_Y;
+                    lcd_y = event.value*screen_height/MAX_TOUCH_Y;
                 }
             }
             else if ((event.type == EV_SYN) && (event.code == SYN_REPORT ))
@@ -124,7 +124,7 @@ void read_coordinate(){
                 pthread_mutex_lock(&timer_mutex);
                 timer = 200;
                 pthread_mutex_unlock(&timer_mutex);
-                notify_callback( ty,screen_width - tx);
+                notify_callback(  lcd_y, screen_width - lcd_x-1);
                 break;
             }
         }
