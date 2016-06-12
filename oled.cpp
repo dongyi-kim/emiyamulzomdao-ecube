@@ -499,6 +499,12 @@ void _oled(Shared* shared)
         return;
     }
     while(1) {
+        if(shared->mode == -1)
+        {
+            Init();
+            continue;
+        }
+
         oledDisp(&shared->sensor, &shared->data);
         usleep(5000);
     }

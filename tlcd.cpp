@@ -287,42 +287,6 @@ void doHelp(void)
 	printf("tlcdtest r 1: => clear line 1 \n");
 }
 */
-void tlcd(char str[])
-{
-    int nCmdMode;
-    int bCursorOn, bBlink, nline , nColumn;
-
-    // open  driver
-
-
-
-
-    //setDDRAMAddr(0, 1);
-
-
-    /*
-    switch ( nCmdMode )
-    {
-    case CMD_TXT_WRITE:
-//		printf("nline:%d ,nColumn:%d\n",nline,nColumn);
-        setDDRAMAddr(nColumn, nline);
-        usleep(2000);
-        writeStr(strWtext);
-        break;
-    case CMD_CURSOR_POS:
-        displayMode(bCursorOn, bBlink, TRUE);
-        setDDRAMAddr(nline-1, nColumn);
-        break;
-    case CMD_CEAR_SCREEN:
-        clearScreen(nline);
-        break;
-    }
-    */
-
-    close(fd);
-
-    return;
-}
 
 string make_str(int value, char c)
 {
@@ -352,14 +316,23 @@ void _tlcd(Shared* shared) {
         perror("driver open error.\n");
         return;
     }
+
     while(1)
     {
+        if(shared->mode == -1)
+        {
+            clearScreen(1);
+            clearScreen(2);
+            continue;
+        }
         int light = shared->sensor.illumination;
         int temp = shared->sensor.temperature;
         int humid = shared->sensor.humidity;
         int soil_humid = shared->sensor.soil_humidity;
         string above;
         string under;
+        above.resize(15);
+        under.resize(15);
         above += make_str(light, 'L');
         above += ' ';
         above += make_str(temp, 'T');

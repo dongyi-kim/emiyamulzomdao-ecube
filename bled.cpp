@@ -66,6 +66,12 @@ void _bled(Shared* shared)
         return;
     }
     while(1) {
+        if(mode == -1)
+        {
+
+            continue;
+        }
+
         ledContr(fd, &shared->sensor, &shared->data);
         usleep(5000);
     }
