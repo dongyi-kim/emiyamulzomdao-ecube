@@ -13,6 +13,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string>
 #include "common.h"
 
 using namespace std;
@@ -293,12 +294,11 @@ void tlcd(char str[])
 
     // open  driver
 
-    functionSet();
-    displayMode(1, 1, 1);
-    clearScreen(2);
-    clearScreen(1);
+
+
+
     //setDDRAMAddr(0, 1);
-    writeStr(str);
+
 
     /*
     switch ( nCmdMode )
@@ -324,6 +324,26 @@ void tlcd(char str[])
     return;
 }
 
+string make_str(int value, char c)
+{
+    string str;
+    str += c;
+    if(value == 0)
+    {
+        l += '0';
+    }
+    else
+    {
+        while(value)
+        {
+            str += '0'+value/10;
+            value/10;
+        }
+    }
+    return str;
+}
+
+
 void _tlcd(Shared* shared) {
 
     fd = open(DRIVER_TLCD, O_RDWR);
@@ -338,15 +358,22 @@ void _tlcd(Shared* shared) {
         int temp = shared->sensor.temperature;
         int humid = shared->sensor.humidity;
         int soil_humid = shared->sensor.soil_humidity;
-        int above_idx = 0;
-        int under_idx = 0;
-        char str_above[15];
-        char str_under[15];
-        while(light)
-        {
+        string above;
+        string under;
+        above += make_str(light, 'L');
+        above += ' ';
+        above += make_str(temp, 'T');
+        under += make_str(humid, 'H');
+        under += ' ';
+        under += make_str(soil_humid, 'S');
 
-        }
-
+        functionSet();
+        displayMode(1, 1, 1);
+        clearScreen(2);
+        clearScreen(1);
+        writeStr(above.c_str());
+        setDDRAMAddr(0,2);
+        writeStr(under.c_str());
     }
     close(fd);
     retrun;
