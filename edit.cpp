@@ -10,8 +10,6 @@
 #include "common.h"
 #include "buzzer.h"
 #include "curl_common.h"
-#include "fnd.h"
-
 using namespace std;
 
 const int keyMap[17] = {-1,-1,1,2,3,-1,4,5,6,-1,7,8,9,-1,-1,0,-1};
@@ -37,12 +35,10 @@ const int buz_len[10] = {
 #define KEYPAD_H 9 // humidity
 #define KEYPAD_S 13 // soil_humidity
 
-void key(void* shared) {
-
-}
-
 namespace edit {
-    void init() {
+    void init(Shared *s) {
+        s->segValue = -1;
+        s->state.len = 0;
         cout<<"edit::Init!!"<<endl;
     }
 
@@ -51,21 +47,21 @@ namespace edit {
 
         bool init_flag = true;
 
-        int cnt = 0, segValue = 0;
+        int cnt = 0;
         int fd = open(DRIVER_KEY, O_RDWR);
-        pthread_t fnd_thread;
-
-        pthread_create(&fnd_thread, NULL, fnd, (void*)&segValue);
 
         while(1) {
             if( s->mode != EDIT_MODE ) {
                 if(init_flag == true) {
                     init_flag = false;
-                    init();
+                    init(s);
                 }
             }
             else {
+                cout<<"Editing"<<endl;
                 int mode = -1, rdata, arr[4], origin;
+                int* segValue = &s->segValue;
+
                 while(1)
                 {
                     if( s->mode != EDIT_MODE ) {
@@ -87,29 +83,30 @@ namespace edit {
                         arr[2] = s->data.humidity;
                         arr[3] = s->data.soil_humidity;
 
-                        segValue = arr[rdata/4];
+                        (*segValue) = arr[rdata/4];
                         origin = arr[rdata/4];
 
                         s->state.state[0] = (mode/4)+1;
                         s->state.len = 1;
                     }
                     else if(rdata <= 12 || rdata == 15) {
-                        dip_buzzer(buz[1], buz_len[1]);
                         if( mode != -1 ) {
+                            dip_buzzer(buz[1], buz_len[1]);
                             int digit = keyMap[rdata];
 
-                            if( segValue < 100000 ) {
-                                segValue *= 10;
-                                segValue += digit;
+                            if( (*segValue) < 100000 ) {
+                                (*segValue) *= 10;
+                                (*segValue) += digit;
 
-                                cout<<segValue<<endl;
+                                cout<<(*segValue)<<endl;
                             }
                         }
                     }
                     else if(rdata == KEYPAD_SAVE) {
-                        dip_buzzer(buz[2], buz_len[2]);
                         if( mode != -1 ) {
-                            arr[mode/4] = segValue;
+                            dip_buzzer(buz[2], buz_len[2]);
+
+                            arr[mode/4] = (*segValue);
 
                             s->data.illumination = arr[0];
                             s->data.temperature = arr[1];
@@ -123,7 +120,7 @@ namespace edit {
                                 break;
                             }
 
-                            segValue = 0;
+                            (*segValue) = -1;
                             s->state.len = 0;
                             mode = -1;
                         }
@@ -132,11 +129,12 @@ namespace edit {
                     else if(rdata == KEYPAD_DELETE) {
                         dip_buzzer(buz[3], buz_len[3]);
                         if( mode != -1 ) {
-                            segValue /= 10;
+                            (*segValue) /= 10;
                         }
                     }
                     usleep(200000);
                 }
+                init_flag = true;
             }
             usleep(100000);
         }

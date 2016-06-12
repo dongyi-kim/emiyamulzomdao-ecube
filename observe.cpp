@@ -20,17 +20,20 @@ namespace observe {
                     init_flag = false;
                     init();
                 }
-                continue;
             }
             else {
                 cout<<"Observing"<<endl;
-                cnt++;
 
-                if(cnt == 10) {
-                    s->mode = -1;
-                    cnt = 0;
+                while(1) {
+                    if( s->mode != OBSERVE_MODE ) {
+                        break;
+                    }
+
+                    /* read data from arduino
+                     * send data to server
+                     * send pump event to arduino
+                     */
                 }
-
 
                 init_flag = true;
             }

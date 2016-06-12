@@ -9,7 +9,10 @@ const string HOST = "http://immense-garden-82747.herokuapp.com";
 
 namespace auth {
     void input_account(string &id) {
-        cin>>id;
+        /* input id by touch screen
+         */
+        id = "234";
+        cout<<"login by "+id<<endl;
     };
 
     /**
@@ -45,8 +48,8 @@ namespace auth {
 //        }
 //
 //        curl_global_cleanup();
-        id = "1234";
-        (*result) = "10 10 10 10 10";
+
+        (*result) = "10 10 10 10";
         int http_code = 200;
         return http_code;
     }

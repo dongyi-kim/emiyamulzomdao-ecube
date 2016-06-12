@@ -10,6 +10,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "common.h"
 
 #define DRIVER_SEGMENT		"/dev/cnfnd"
 
@@ -17,7 +18,7 @@
 
 #define  DOT_OR_DATA	0x80
 
-const unsigned short segNum[10] =
+const unsigned short segNum[11] =
         {
                 0x3F, // 0
                 0x06,
@@ -28,7 +29,8 @@ const unsigned short segNum[10] =
                 0x7D,
                 0x27,
                 0x7F,
-                0x6F  // 9
+                0x6F, // 9
+                0x00
         };
 const unsigned short segSelMask[MAX_FND_NUM] =
         {
@@ -74,13 +76,22 @@ int fndDisp(int driverfile, int* num , int dotflag)
     }
     // if 6 fnd
     while(1) {
-        temp = (*num)%1000000;
+        if( (*num) == -1 ) {
+            for(i = 5 ; i >= 0 ; i--)
+            {
+                fndChar[i] = 10;
+            }
+        }
 
-        if( temp == -1 ) temp = 0;
-        for(i = 5 ; i >= 0 ; i--)
-        {
-            fndChar[i] = temp%10;
-            temp /= 10;
+        else {
+            temp = (*num)%1000000;
+
+            if( temp == -1 ) temp = 0;
+            for(i = 5 ; i >= 0 ; i--)
+            {
+                fndChar[i] = temp%10;
+                temp /= 10;
+            }
         }
 
         cSelCounter = 0;
@@ -99,13 +110,14 @@ int fndDisp(int driverfile, int* num , int dotflag)
         }
         wdata = 0;
         write(driverfile, &wdata, 2);
+
         usleep(500);
     }
 
     return 1;
 }
 
-void segment(int* number)
+void segment(Shared* shared)
 {
     int fd;
 
@@ -117,13 +129,13 @@ void segment(int* number)
         return;
     }
     fnd_changemode(1);
-    fndDisp(fd, number, 0);
+    fndDisp(fd, &shared->segValue, 0);
     fnd_changemode(0);
     close(fd);
 
     return;
 }
 
-void* fnd(void* number) {
-    segment((int*)number);
+void* fnd(void* shared) {
+    segment((Shared*)shared);
 }

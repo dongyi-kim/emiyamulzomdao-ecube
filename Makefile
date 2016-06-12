@@ -1,6 +1,6 @@
-CXX=g++
+CXX=arm-none-linux-gnueabi-g++
 
-main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o mled.o bled.o oled.o cled.o receiveSensor.o
 	$(CXX) -o main $^ -lcurl -lpthread
 
 main.o: main.cpp
@@ -26,5 +26,21 @@ dipsw.o: dipsw.cpp
 
 fnd.o: fnd.cpp
 	$(CXX) -c fnd.cpp
+
+mled.o: mled.cpp
+	$(CXX) -c mled.cpp
+
+bled.o: bled.cpp
+	$(CXX) -c bled.cpp
+
+oled.o: oled.cpp
+	$(CXX) -c oled.cpp
+
+cled.o: cled.cpp
+	$(CXX) -c cled.cpp
+
+receiveSensor.o: receiveSensor.cpp
+	$(CXX) -c receiveSensor.cpp
+
 clean:
 	rm *.o

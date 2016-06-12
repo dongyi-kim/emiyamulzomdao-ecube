@@ -10,7 +10,7 @@ using namespace std;
 
 class Data {
 public:
-    int illumination, humidity, temperature, soil_humidity;
+    int illumination, temperature, humidity, soil_humidity;
     Data(){}
     Data(int illumination, int temperature, int humidity, int soil_humidity) {
         this->illumination = illumination;
@@ -24,15 +24,24 @@ class State {
 public:
     int state[10];
     int len;
+
+    State() {
+        this->len = 0;
+    }
 };
 
 class Shared {
 public:
     Data data;
+    Data sensor;
     State state;
     int mode;
     std::string id;
+    bool liq_exist;
+    int segValue;
     Shared(){
+        liq_exist = true;
+        segValue = -1;
         this->mode = -1;
     }
 };
