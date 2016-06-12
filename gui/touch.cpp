@@ -45,9 +45,9 @@ void read_coordinate(int &tx, int &ty){
         readSize = read(fp, &event, sizeof(event));
         if ( readSize == sizeof(event) )
         {
-//			printf("type :%04X \n",event.type);
-//			printf("code :%04X \n",event.code);
-//			printf("value:%08X \n",event.value);
+			printf("type :%04X \n",event.type);
+			printf("code :%04X \n",event.code);
+			printf("value:%08X \n",event.value);
             if( event.type == EV_ABS )
             {
                 if (event.code == ABS_MT_POSITION_X )
