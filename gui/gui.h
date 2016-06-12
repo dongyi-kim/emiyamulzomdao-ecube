@@ -5,7 +5,7 @@
 #ifndef EMIYAMULZOMDAO_ECUBE_GUI_H
 #define EMIYAMULZOMDAO_ECUBE_GUI_H
 #include <algorithm>
-
+#include<vector>
 using namespace std;
 
 namespace gui{

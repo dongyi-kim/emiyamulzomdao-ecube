@@ -11,12 +11,12 @@
 #include <sys/ioctl.h>  // for ioctl
 #include <sys/mman.h>
 #include <linux/fb.h>   // for fb_var_screeninfo, FBIOGET_VSCREENINFO
-#include "bitmap.h"
 
 #define FBDEV_FILE  "/dev/fb0"
 #define BIT_VALUE_24BIT   24
 
 #include <vector>
+#include<string>
 
 using namespace std;
 
