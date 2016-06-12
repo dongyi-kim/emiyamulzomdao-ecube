@@ -334,8 +334,19 @@ void _tlcd(Shared* shared) {
     }
     while(1)
     {
+        int light = shared->sensor.illumination;
+        int temp = shared->sensor.temperature;
+        int humid = shared->sensor.humidity;
+        int soil_humid = shared->sensor.soil_humidity;
+        int above_idx = 0;
+        int under_idx = 0;
         char str_above[15];
         char str_under[15];
+        while(light)
+        {
+
+        }
+
     }
     close(fd);
     retrun;
