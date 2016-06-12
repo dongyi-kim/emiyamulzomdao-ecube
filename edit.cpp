@@ -69,9 +69,9 @@ namespace edit {
                     if( s->mode != EDIT_MODE ) {
                         break;
                     }
-                    pthread_mutex_lock(thread_manager::get_a());
+                    pthread_mutex_lock(thread_manager::get_key());
                     read(fd,&rdata,4);
-                    pthread_mutex_unlock(thread_manager::get_a());
+                    pthread_mutex_unlock(thread_manager::get_key());
                     if(rdata == 0)
                     {
                         continue;

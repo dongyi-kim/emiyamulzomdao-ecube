@@ -530,9 +530,25 @@ void _oled(Shared* shared)
             continue;
         }
         prev = cur;
-        pthread_mutex_lock(thread_manager::get_a());
+        pthread_mutex_lock(thread_manager::get_oled());
+        pthread_mutex_lock(thread_manager::get_cled());
+        pthread_mutex_lock(thread_manager::get_mled());
+        pthread_mutex_lock(thread_manager::get_bled());
+        pthread_mutex_lock(thread_manager::get_seg());
+        pthread_mutex_lock(thread_manager::get_tlcd());
+        pthread_mutex_lock(thread_manager::get_dips());
+        pthread_mutex_lock(thread_manager::get_buzz());
+        pthread_mutex_lock(thread_manager::get_key());
         oledDisp(cur);
-        pthread_mutex_unlock(thread_manager::get_a());
+        pthread_mutex_unlock(thread_manager::get_cled());
+        pthread_mutex_unlock(thread_manager::get_mled());
+        pthread_mutex_unlock(thread_manager::get_bled());
+        pthread_mutex_unlock(thread_manager::get_seg());
+        pthread_mutex_unlock(thread_manager::get_tlcd());
+        pthread_mutex_unlock(thread_manager::get_dips());
+        pthread_mutex_unlock(thread_manager::get_buzz());
+        pthread_mutex_unlock(thread_manager::get_key());
+        pthread_mutex_unlock(thread_manager::get_oled());
         usleep(1000000);
     }
     close(fd);

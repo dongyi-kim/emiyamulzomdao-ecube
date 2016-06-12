@@ -73,24 +73,24 @@ int IsBusy(void)
     unsigned short wdata, rdata;
 
     wdata = SIG_BIT_RW;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RW | SIG_BIT_E;
 
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     read(fd,&rdata ,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RW;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     if (rdata &  BUSY_BIT)
         return 1;
@@ -106,19 +106,19 @@ int tlcd_writeCmd(unsigned short cmd)
         return 0;
 
     wdata = cmd;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = cmd | SIG_BIT_E;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = cmd ;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     return 1;
 }
@@ -194,19 +194,19 @@ int writeCh(unsigned short ch)
         return 0;
 
     wdata = SIG_BIT_RS | ch;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RS | ch | SIG_BIT_E;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RS | ch;
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_tlcd());
     write(fd ,&wdata,2);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_tlcd());
     usleep(1000);
     return 1;
 
@@ -241,7 +241,7 @@ int writeStr(const char* str)
 {
     unsigned char wdata;
     int i;
-    for(i =0; i < str.size() ;i++ )
+    for(i =0; i < strlen(str) ;i++ )
     {
         if (str[i] == '_')
             wdata = (unsigned char)' ';

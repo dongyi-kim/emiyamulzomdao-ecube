@@ -24,9 +24,9 @@ int dipsw()
         perror("driver  open error.\n");
         return -1;
     }
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_dips());
     read(fd, &retvalue, 8);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_dips());
     retvalue &= 0xFF;
     close(fd);
 

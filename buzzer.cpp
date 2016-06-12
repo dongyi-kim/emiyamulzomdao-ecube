@@ -27,16 +27,16 @@ void buzzer(int buzzerNumber)
 		return;
 	}
 	// control led
-	pthread_mutex_lock(thread_manager::get_a());
+	pthread_mutex_lock(thread_manager::get_buzz());
 	write(fd, &buzzerNumber, 4);
-	pthread_mutex_unlock(thread_manager::get_a());
+	pthread_mutex_unlock(thread_manager::get_buzz());
 
 	usleep(100000);
     buzzerNumber = 0;
 
-	pthread_mutex_lock(thread_manager::get_a());
+	pthread_mutex_lock(thread_manager::get_buzz());
 	write(fd, &buzzerNumber, 4);
-	pthread_mutex_unlock(thread_manager::get_a());
+	pthread_mutex_unlock(thread_manager::get_buzz());
 
     close(fd);
 	

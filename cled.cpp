@@ -47,9 +47,9 @@ void cledContr(int driverfile, int idx_led, int r, int g, int b)
     colorArray[INDEX_GREEN_LED] =(unsigned short) g;
     colorArray[INDEX_BLUE_LED] =(unsigned short) b;
 
-    pthread_mutex_lock(thread_manager::get_a());
+    pthread_mutex_lock(thread_manager::get_cled());
     write(driverfile, &colorArray ,6);
-    pthread_mutex_unlock(thread_manager::get_a());
+    pthread_mutex_unlock(thread_manager::get_cled());
 
     return;
 }

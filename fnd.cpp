@@ -103,21 +103,20 @@ int fndDisp(int driverfile, int* num , int dotflag)
                 wdata = segNum[fndChar[cSelCounter]] | segSelMask[cSelCounter];
                 if (dotEnable[cSelCounter])
                     wdata |= DOT_OR_DATA;
-                pthread_mutex_lock(thread_manager::get_a());
+                pthread_mutex_lock(thread_manager::get_seg());
                 write(driverfile, &wdata, 2);
-                pthread_mutex_unlock(thread_manager::get_a());
+                pthread_mutex_unlock(thread_manager::get_seg());
                 cSelCounter++;
 
 
                 usleep(ONE_SEG_DISPLAY_TIME_USEC);
 
             }
-            usleep(1000000);
         }
         wdata = 0;
-        pthread_mutex_lock(thread_manager::get_a());
+        pthread_mutex_lock(thread_manager::get_seg());
         write(driverfile, &wdata, 2);
-        pthread_mutex_unlock(thread_manager::get_a());
+        pthread_mutex_unlock(thread_manager::get_seg());
     }
 
     return 1;
