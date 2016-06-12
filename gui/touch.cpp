@@ -13,6 +13,7 @@
 #include <linux/input.h>
 #include <linux/fb.h>   // for fb_var_screeninfo, FBIOGET_VSCREENINFO
 #include <pthread.h>
+#include <signal.h>
 #include <unistd.h>
 #include <set>
 
@@ -38,26 +39,40 @@ set<void(*)(touch::touch_event)> callbacks;
 int	fb_fd = NULL;
 int fp    = NULL;
 int readSize;
+int maxSize;
+bool read_done;
+struct input_event event;
+
 void* read_from_device(void* eptr){
-    struct input_event *event = (input_event*)eptr;
-    readSize = -1;
-    readSize = read(fp, &event, sizeof(*event));
+    read_done = false;
+    printf("read (%d)\n", maxSize);
+    readSize = 0;
+    readSize = read(fp, &event, sizeof(event));
+    printf("read done\n");
+    read_done = true;
+    pthread_exit(NULL);
 }
+
 void read_coordinate(int &tx, int &ty){
-    struct input_event event;
+
     int readSize;
+    maxSize = sizeof(event);
     while(1)
     {
+
         pthread_t read_thread;
-        pthread_create(&read_thread, NULL, &read_from_device, event);
-        usleep(100);
-        pthread_kill(read_thread, 1);
-        if(readSize == -1)
+        pthread_create(&read_thread, NULL, &read_from_device, NULL);
+        usleep(1000);
+        pthread_cancel(read_thread);
+        pthread_join(read_thread, NULL);
+//        readSize = read(fp, &event, sizeof(event));
+
+        if(!read_done)
         {
             tx = ty = -1;
             break;
         }
-
+        printf("check read Size : %d(%d)\n", readSize, sizeof(event));
         if ( readSize == sizeof(event) )
         {
 			//printf("type :%04X \n",event.type);
