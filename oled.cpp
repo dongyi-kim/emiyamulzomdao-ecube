@@ -418,9 +418,7 @@ void oledDisp(string str)
     pthread_mutex_lock(thread_manager::get_key());
     
     reset();
-    usleep(10000);
     Init();
-    usleep(10000);
 
     imageLoading(str.c_str());
 
@@ -459,17 +457,17 @@ void _oled(Shared* shared)
 
         if(s->illumination <= 10)
         {
-            oledDisp("sleep.bmp");
+            oledDisp("sleep.img");
         }
         if(chk[0] && chk[1] && chk[2] && chk[3])
         {
-            oledDisp("enough.bmp");
+            oledDisp("enough.img");
         }
         else
         {
-            oledDisp("not_enough.bmp");
+            oledDisp("not_enough.img");
         }
-
+        /*
         if(shared->mode == EDIT_MODE)
         {
             cur = "second.img";
@@ -480,8 +478,8 @@ void _oled(Shared* shared)
 
         
         oledDisp(cur);
+        */
         
-        usleep(1000000);
     }
     close(fd);
 

@@ -41,7 +41,7 @@ int main() {
     pthread_create(&oled_thread, NULL, oled, (void*)&shared);
     pthread_create(&cled_thread, NULL, cled, (void*)&shared);
     pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
-    //pthread_create(&receive_thread, NULL, receive, (void*)&shared);
+    pthread_create(&receive_thread, NULL, receive, (void*)&shared);
 
     while(1) {
         string id;

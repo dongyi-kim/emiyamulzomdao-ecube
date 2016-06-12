@@ -17,5 +17,5 @@ namespace thread_manager{
     pthread_mutex_t* get_cled();
     pthread_mutex_t* get_dips();
     pthread_mutex_t* get_key();
-
+}
 #endif //SYSPROG_THREAD_MANAGER_H

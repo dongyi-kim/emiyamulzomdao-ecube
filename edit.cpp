@@ -27,7 +27,7 @@ const int buz_len[10] = {
         3, 1, 3, 1
 };
 
-#define DRIVER_KEY		"/dev/cnkey"
+#define DRIVER_KEY      "/dev/cnkey"
 
 #define KEYPAD_SAVE 16
 #define KEYPAD_DELETE 14

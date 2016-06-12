@@ -120,16 +120,16 @@ int displayDotLed(int driverfile, State* s)
 
     while(1)
     {
-        usleep(100000);
+        usleep(ONE_LINE_TIME_U);
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {
                 wdata[0] = clear[0][j];
                 wdata[1] = clear[1][j];
 
-                pthread_mutex_lock(thread_manager::get_a());
+                pthread_mutex_lock(thread_manager::get_mled());
                 write(driverfile,(unsigned char*)wdata, 4);
-                pthread_mutex_unlock(thread_manager::get_a());
+                pthread_mutex_unlock(thread_manager::get_mled());
                 usleep(ONE_LINE_TIME_U);
             }
 
@@ -146,9 +146,9 @@ int displayDotLed(int driverfile, State* s)
                         wdata[0] = config[_state-1][0][j];
                         wdata[1] = config[_state-1][1][j];
                     }
-                    pthread_mutex_lock(thread_manager::get_a());
+                    pthread_mutex_lock(thread_manager::get_mled());
                     write(driverfile,(unsigned char*)wdata, 4);
-                    pthread_mutex_unlock(thread_manager::get_a());
+                    pthread_mutex_unlock(thread_manager::get_mled());
                     usleep(ONE_LINE_TIME_U);
                 }
             }
