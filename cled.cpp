@@ -72,8 +72,9 @@ void _cled(Shared* shared)
     bool liq_prev = !shared->liq_exist;
 
     while(1) {
+        /*
         dip = dipsw();
-        if(dip & 1)
+        if(dip & 2)
         {
             if(preDip != dip)
             {
@@ -83,8 +84,10 @@ void _cled(Shared* shared)
                 cledContr(fd, 3, 0, 0, 0);
             }
             preDip = dip;
+            usleep(1000000);
             continue;
         }
+        */
         if( liq_prev != shared->liq_exist ) {
             if (!shared->liq_exist) {
                 cledContr(fd, 0, 0, 0, 0);

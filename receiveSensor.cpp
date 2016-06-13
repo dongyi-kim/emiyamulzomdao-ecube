@@ -107,20 +107,23 @@ void _receive(Shared* shared)
             //res = write(fd, buf, 1);
 
             //printf("%d\n", res);
-
-            sleep(5);
+            cout<<"hi"<<endl;
             buf[0] = 1;
             res = write(fd, buf, 1);
-
-            printf("%d\n", res);
-
+            sleep(3);
+            cout<<"hi"<<endl;
             res = read(fd, str, 255);
             str[res] = 0;             /* set end of string, so we can printf */
 
             printf("%s\n", str);
-            sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
-            send_to_server(&shared->sensor.illumination, &shared->sensor.humidity, &shared->sensor.temperature, &shared->sensor.soil_humidity);
-            sleep(5);
+            printf("%d\n", res);
+            if( strlen(str) != 0 )
+                sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+            //send_to_server(shared->sensor, shared->id);
+            
+        
+            sleep(3);
+            
     }
 /* restore the old port settings */
     tcsetattr(fd, TCSANOW, &oldtio);

@@ -4,7 +4,7 @@
 
 #define POST_HOST "http://immense-garden-82747.herokuapp.com/api/data/"
 
-int send_to_server(Data* d, string id) {
+int send_to_server(Data d, string id) {
     char query[200];
     CURL *curl;
     CURLcode res;

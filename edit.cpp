@@ -39,7 +39,7 @@ const int buz_len[10] = {
 
 namespace edit {
     void init(Shared *s) {
-        s->segValue = -1;
+        //s->segValue = -1;
         s->state.len = 0;
         cout<<"edit::Init!!"<<endl;
     }
@@ -50,7 +50,7 @@ namespace edit {
         bool init_flag = true;
 
         int cnt = 0;
-        int fd = open(DRIVER_KEY, O_RDWR);
+        int fd;
 
         while(1) {
             if( s->mode != EDIT_MODE ) {
@@ -60,6 +60,8 @@ namespace edit {
                 }
             }
             else {
+                fd = open(DRIVER_KEY, O_RDWR);
+
                 cout<<"Editing"<<endl;
                 int mode = -1, rdata, arr[4], origin;
                 int* segValue = &s->segValue;
@@ -116,7 +118,7 @@ namespace edit {
                             s->data.humidity = arr[2];
                             s->data.soil_humidity = arr[3];
 
-                            int http_code = sendConfigToServer(s->data);
+                            int http_code = sendConfigToServer(s->data, s->id);
 
                             if(http_code != 200) {
                                 cout<<"Error!!!"<<endl;
@@ -137,6 +139,7 @@ namespace edit {
                     }
                     usleep(200000);
                 }
+                close(fd);
                 init_flag = true;
             }
             usleep(100000);

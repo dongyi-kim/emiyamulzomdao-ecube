@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 #include "common.h"
 #include "buzzer.h"
 #include "curl_common.h"
@@ -41,20 +42,26 @@ const int buz_len[10] = {
 const string HOST = "http://immense-garden-82747.herokuapp.com";
 
 namespace auth {
-    void input_account(string &id, Shared* s) {
+    void input_account(Shared* s) {
         /* input id by touch screen
          */
+
+        ostringstream ss;
+
         bool init_flag = true;
         int rdata;
         int cnt = 0;
         int fd = open(DRIVER_KEY, O_RDWR);
         int* segValue = &(s->segValue);
 
+        (*segValue) = 0;
+
         while(1)
         {
             pthread_mutex_lock(thread_manager::get_key());
             read(fd,&rdata,4);
             pthread_mutex_unlock(thread_manager::get_key());
+
             if(rdata == 0)
             {
                 continue;
@@ -74,7 +81,8 @@ namespace auth {
             else if(rdata == KEYPAD_SAVE) {
                 dip_buzzer(buz[2], buz_len[2]);
 
-                id = "" + (*segValue);
+                ss << (*segValue);
+                s->id = ss.str();
                 (*segValue) = -1;
                 s->state.len = 0;
                 break;
@@ -85,8 +93,9 @@ namespace auth {
                 (*segValue) /= 10;
             }
             usleep(200000);
+        
         }
-    };
+    }
 
     /**
         Get user's plant config info from server
@@ -126,4 +135,4 @@ namespace auth {
         int http_code = 200;
         return http_code;
     }
-}
+};

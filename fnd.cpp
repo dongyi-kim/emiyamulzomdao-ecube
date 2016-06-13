@@ -76,6 +76,7 @@ int fndDisp(int driverfile, int* num , int dotflag)
         dotEnable[i] = dotflag & (0x1 << i);
     }
 
+    cout<<(*num)<<endl;
     // if 6 fnd
     while(1) {
 

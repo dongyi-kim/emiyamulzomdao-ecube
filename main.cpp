@@ -34,13 +34,13 @@ int main() {
     pthread_t receive_thread;
 
     pthread_create(&observe_thread, NULL, observe::observe, (void*)&shared);
-    pthread_create(&edit_thread, NULL, edit::edit, (void*)&shared);
-    pthread_create(&fnd_thread, NULL, fnd, (void*)&shared);
-    pthread_create(&mled_thread, NULL, mled, (void*)&shared);
-    pthread_create(&bled_thread, NULL, bled, (void*)&shared);
-    pthread_create(&oled_thread, NULL, oled, (void*)&shared);
-    pthread_create(&cled_thread, NULL, cled, (void*)&shared);
-    pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
+    // pthread_create(&edit_thread, NULL, edit::edit, (void*)&shared);
+    // pthread_create(&fnd_thread, NULL, fnd, (void*)&shared);
+    // pthread_create(&mled_thread, NULL, mled, (void*)&shared);
+    // pthread_create(&bled_thread, NULL, bled, (void*)&shared);
+    // pthread_create(&oled_thread, NULL, oled, (void*)&shared);
+    // pthread_create(&cled_thread, NULL, cled, (void*)&shared);
+    // pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
     pthread_create(&receive_thread, NULL, receive, (void*)&shared);
 
     while(1) {
@@ -52,9 +52,8 @@ int main() {
 
         while(1) {
             string ret;
-            auth::input_account(id);
 
-            shared.id = id;
+            auth::input_account(&shared);
 
             int http_status = auth::authorize(id, &ret);
 
@@ -73,13 +72,13 @@ int main() {
 
         shared.data = data;
 
-        shared.mode = EDIT_MODE;
+        shared.mode = OBSERVE_MODE;
 
         while(1) {
             /**
              * Temp config for test
              */
-
+            cout<<shared.id<<endl;
             usleep(1000000);
         }
     }

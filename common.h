@@ -48,6 +48,7 @@ public:
     Shared(){
         liq_exist = true;
         segValue = -1;
+        mode = -1;
         this->mode = -1;
     }
 };
@@ -64,8 +65,8 @@ namespace observe{
 };
 
 namespace auth{
-    void input_account(string &id);
-    int authorize(string id, string* result);
+    extern void input_account(Shared* s);
+    extern int authorize(string id, string* result);
 }
 
 #endif //SYSPROG_COMMON_H
