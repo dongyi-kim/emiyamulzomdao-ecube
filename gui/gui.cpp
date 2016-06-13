@@ -166,12 +166,12 @@ namespace gui{
 void init_flower_page()
 {
     display::draw_bmp(img_pages[0]);
-
+/*
     camera::CreateCamera(0);
     sleep(5);
     camera::save("test123.bmp");
     sleep(5);
-    camera::DestroyCamera();
+    camera::DestroyCamera();*/
 
 }
 void init_info_page()

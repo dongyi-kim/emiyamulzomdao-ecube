@@ -95,6 +95,7 @@ namespace auth {
             usleep(200000);
         
         }
+        close(fd);
     }
 
     /**

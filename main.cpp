@@ -3,11 +3,18 @@
 #include <pthread.h>
 #include <curl/curl.h>
 #include <pthread.h>
+
+#include "gui/gui.h"
+#include "gui/touch.h"
+#include "gui/display.h"
+
 #include "common.h"
 #include "fnd.h"
 #include "mled.h"
 #include "dipsw.h"
 #include "bled.h"
+#include "buzzer.h"
+
 #include "oled.h"
 #include "cled.h"
 #include "tlcd.h"
@@ -16,12 +23,39 @@
 
 using namespace std;
 
+Shared shared;
+
+const int arr[] = {1, 5, 8};
+
+void click_config(touch::touch_event e)
+{
+    
+
+    // filter touch event with bit mask
+    if((e.event_code & touch::EVENT_TOUCH_UP) > 0 )
+        if( 0 < e.y && e.y < 100 && 600 < e.x && e.x < 800 ) {
+            dip_buzzer(arr, 3);
+            cout<<"CONFIG"<<endl;
+            shared.mode = EDIT_MODE;
+        }
+}
+
+void click_edit(touch::touch_event e)
+{
+    // filter touch event with bit mask
+    if((e.event_code & touch::EVENT_TOUCH_UP) > 0 )
+        if( 0 < e.y && e.y < 100 && 0 < e.x && e.x < 200 ) {
+            dip_buzzer(arr, 3);
+            cout<<"EDIT"<<endl;
+            shared.mode = OBSERVE_MODE;
+        }
+}
 
 int main() {
     /*
      * outer while: login -> sensor, edit -> logout -> ...
      */
-    Shared shared;
+    
 
     pthread_t observe_thread;
     pthread_t edit_thread;
@@ -34,13 +68,13 @@ int main() {
     pthread_t receive_thread;
 
     pthread_create(&observe_thread, NULL, observe::observe, (void*)&shared);
-    // pthread_create(&edit_thread, NULL, edit::edit, (void*)&shared);
-    // pthread_create(&fnd_thread, NULL, fnd, (void*)&shared);
-    // pthread_create(&mled_thread, NULL, mled, (void*)&shared);
-    // pthread_create(&bled_thread, NULL, bled, (void*)&shared);
-    // pthread_create(&oled_thread, NULL, oled, (void*)&shared);
-    // pthread_create(&cled_thread, NULL, cled, (void*)&shared);
-    // pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
+    pthread_create(&edit_thread, NULL, edit::edit, (void*)&shared);
+    pthread_create(&fnd_thread, NULL, fnd, (void*)&shared);
+    pthread_create(&mled_thread, NULL, mled, (void*)&shared);
+    pthread_create(&bled_thread, NULL, bled, (void*)&shared);
+    pthread_create(&oled_thread, NULL, oled, (void*)&shared);
+    pthread_create(&cled_thread, NULL, cled, (void*)&shared);
+    pthread_create(&tlcd_thread, NULL, tlcd, (void*)&shared);
     pthread_create(&receive_thread, NULL, receive, (void*)&shared);
 
     while(1) {
@@ -74,6 +108,14 @@ int main() {
 
         shared.mode = OBSERVE_MODE;
 
+        touch::init();
+
+        display::init();
+
+        gui::setup();
+
+        touch::add_callback(&click_config);
+        touch::add_callback(&click_edit);
         while(1) {
             /**
              * Temp config for test

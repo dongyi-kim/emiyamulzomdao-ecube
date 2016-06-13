@@ -110,8 +110,7 @@ void _receive(Shared* shared)
             cout<<"hi"<<endl;
             buf[0] = 1;
             res = write(fd, buf, 1);
-            sleep(3);
-            cout<<"hi"<<endl;
+            
             res = read(fd, str, 255);
             str[res] = 0;             /* set end of string, so we can printf */
 

@@ -1,6 +1,6 @@
 CXX=arm-none-linux-gnueabi-g++
 
-main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o mled.o bled.o oled.o cled.o tlcd.o receiveSensor.o thread_manager.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o mled.o bled.o oled.o cled.o tlcd.o receiveSensor.o thread_manager.o camera.o display.o touch.o gui.o
 	
 	$(CXX) -o main $^ -lcurl -lpthread
 
@@ -52,6 +52,15 @@ touch.o: gui/touch.cpp
 thread_manager.o: thread_manager.cpp
 	$(CXX) -c thread_manager.cpp
 
+
+display.o: gui/display.cpp
+	$(CXX) -c gui/display.cpp
+
+gui.o: gui/gui.cpp
+	$(CXX) -c gui/gui.cpp
+
+camera.o: vision/camera.cpp
+	$(CXX) -c vision/camera.cpp
 
 clean:
 	rm *.o
