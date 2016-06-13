@@ -25,16 +25,16 @@ using namespace std;
 
 Shared shared;
 
-const int arr[] = {1, 5, 8};
+const int arr[] = {1};
 
 void click_config(touch::touch_event e)
 {
     
 
     // filter touch event with bit mask
-    if((e.event_code & touch::EVENT_TOUCH_UP) > 0 )
+    if((e.event_code & touch::EVENT_TOUCH_DOWN) > 0 )
         if( 0 < e.y && e.y < 100 && 600 < e.x && e.x < 800 ) {
-            dip_buzzer(arr, 3);
+            dip_buzzer(arr, 1);
             cout<<"CONFIG"<<endl;
             shared.mode = EDIT_MODE;
         }
@@ -43,9 +43,9 @@ void click_config(touch::touch_event e)
 void click_edit(touch::touch_event e)
 {
     // filter touch event with bit mask
-    if((e.event_code & touch::EVENT_TOUCH_UP) > 0 )
+    if((e.event_code & touch::EVENT_TOUCH_DOWN) > 0 )
         if( 0 < e.y && e.y < 100 && 0 < e.x && e.x < 200 ) {
-            dip_buzzer(arr, 3);
+            dip_buzzer(arr, 1);
             cout<<"EDIT"<<endl;
             shared.mode = OBSERVE_MODE;
         }

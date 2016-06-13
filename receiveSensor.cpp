@@ -103,14 +103,15 @@ void _receive(Shared* shared)
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
             
-            //buf[0] = 2;
-            //res = write(fd, buf, 1);
+            buf[0] = 2;
+            res = write(fd, buf, 1);
+            sleep(5);
 
-            //printf("%d\n", res);
+            printf("%d\n", res);
             cout<<"hi"<<endl;
             buf[0] = 1;
             res = write(fd, buf, 1);
-            
+
             res = read(fd, str, 255);
             str[res] = 0;             /* set end of string, so we can printf */
 
