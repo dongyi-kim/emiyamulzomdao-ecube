@@ -10,7 +10,7 @@
 using namespace std;
 
 int main(){
-    cv::VideoCapture cap(-1);
+    cv::VideoCapture cap("/dev/video0");
     //capture.set(CV_CAP_PROP_FRAME_WIDTH,640);
     //capture.set(CV_CAP_PROP_FRAME_HEIGHT,480);
     if ( !cap.isOpened() )  // if not success, exit program

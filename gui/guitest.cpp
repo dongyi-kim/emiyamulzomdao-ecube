@@ -20,13 +20,6 @@ int main(){
 
     gui::setup();
 
-    vector<vector<unsigned long> > bitmap(10);
-    for(int i = 0 ; i < 10;i++){
-        bitmap[i].resize(30);
-
-    }
-
-    display::draw_bmp(bitmap, 0,300);
     while(1){
         int a =1;
         a = 2;

@@ -17,7 +17,6 @@ namespace gui{
         area(int x1, int y1, int x2, int y2, bool visible = true)
             :  visible(visible)
         {
-            this->image = image;
             up = min(y1, y2);
             down = max(y1, y2);
             left = min(x1, x2);

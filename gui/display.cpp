@@ -17,7 +17,7 @@
 
 #include <vector>
 #include <string>
-#include <pthread>
+#include <pthread.h>
 #include <iostream>
 using namespace std;
 
@@ -46,6 +46,10 @@ namespace display{
         int lcd_y = x;
         int lcd_x = screen_width - y - 1;
         //printf("(%d, %d) -> (%d, %d) \n",x ,y, lcd_x, lcd_y);
+        if(lcd_y >= screen_height || lcd_x >= screen_width || lcd_x < 0 || lcd_y < 0)
+        {
+            return NULL;
+        }
         return ((unsigned long*)pfbmap + (screen_width * lcd_y) + lcd_x);
     }
 
@@ -65,6 +69,7 @@ namespace display{
         struct  fb_var_screeninfo fbvar;
         struct  fb_fix_screeninfo fbfix;
         pthread_mutex_lock(&display_mutex);
+        printf("[display_mutex] lock\n");
 
         int ecnt = 0;
         if( (fbfd = open(FBDEV_FILE, O_RDWR)) < 0)
@@ -111,9 +116,14 @@ namespace display{
 
         cout << ++ecnt << endl;
         pfbmap  =   (unsigned char *) mmap(0, mem_size, PROT_READ|PROT_WRITE, MAP_SHARED, fbfd, 0);
-        for(int r = 0 ; r < bitmap.size(); r++){
+
+        for(int r = 0 ; r < bitmap.size(); r++)
+        {
             for(int c = 0; c < bitmap[0].size(); c++){
                 unsigned long* ptr = lcd(x+c,y+r);
+                if(ptr == NULL){
+                    continue;
+                }
                 *ptr = bitmap[r][c];
             }
         }
@@ -121,7 +131,8 @@ namespace display{
         cout << ++ecnt << endl;
         munmap( pfbmap, mem_size);
         close( fbfd);
-        pthread_mutex_lock(&display_mutex);
+        printf("[display_mutex] unlock\n");
+        pthread_mutex_unlock(&display_mutex);
     }
 
     void read_bmp(vector<vector<unsigned long> > &bitmap, const string& filename)
@@ -176,6 +187,8 @@ namespace display{
         //printf("size : %d\n", size);
 
         // check 24bit
+
+        cout << "bit : " << bmpInfoHeader->biBitCount << endl;
         if(BIT_VALUE_24BIT != (bmpInfoHeader->biBitCount))     // bit value
         {
             printf("It supports only 24bit bmp!\n");
@@ -199,7 +212,7 @@ namespace display{
 //        cout << "d" << endl;
         for(int j = 0; j < rows; j++)
         {
-            bitmap[j].resize(cols);
+            bitmap[rows-j-1].resize(cols);
             int k   =   j * cols * 3;
             int t   =   (rows - 1 - j) * cols;
 

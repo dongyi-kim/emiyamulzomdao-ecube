@@ -1,3 +1,9 @@
+//
+// Created by root on 16. 6. 13.
+//
+
+#include "camera.h"
+
 #include <stdlib.h>
 #include <unistd.h>     // for open/close
 #include <fcntl.h>      // for O_RDWR
@@ -10,11 +16,6 @@
 #include <linux/videodev2.h>
 #include <pthread.h>
 #include "SecBuffer.h"
-#include "camera.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/video/background_segm.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <cstdio>
 #include <iostream>
 using namespace std;
@@ -346,7 +347,7 @@ static int fimc_v4l2_querybuf(int fp, struct SecBuffer *buffers, enum v4l2_buf_t
 
         buffers[i].size.s = v4l2_buf.length;
 
-        if ((buffers[i].virt.p = (char *)mmap(0, v4l2_buf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
+        if ((buffers[i].virt.p = (unsigned char *)mmap(0, v4l2_buf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
                                               fp, v4l2_buf.m.offset)) < 0) {
             printf("%s %d] mmap() failed",__func__, __LINE__);
             return -1;
@@ -512,56 +513,6 @@ static int fimc_v4l2_s_parm(int fp, struct v4l2_streamparm *streamparm)
     return 0;
 }
 
-int CreateCamera(int index)
-{
-    cout << "a" << endl;
-    printf("%s :\n", __func__);
-    int ret = 0;
-
-
-    cout << "b" << endl;
-    m_cam_fd = open(CAMERA_DEV_NAME, O_RDWR);
-    if (m_cam_fd < 0) {
-        printf("ERR(%s):Cannot open %s (error : %s)\n", __func__, CAMERA_DEV_NAME, strerror(errno));
-        return -1;
-    }
-    printf("%s: open(%s) --> m_cam_fd %d\n", __func__, CAMERA_DEV_NAME, m_cam_fd);
-
-
-    cout << "c" << endl;
-    ret = fimc_v4l2_querycap(m_cam_fd);
-    CHECK(ret);
-    if (!fimc_v4l2_enuminput(m_cam_fd, index)) {
-        printf("m_cam_fd(%d) fimc_v4l2_enuminput fail\n", m_cam_fd);
-        return -1;
-    }
-
-
-    cout << "d" << endl;
-    ret = fimc_v4l2_s_input(m_cam_fd, index);
-    CHECK(ret);
-
-
-    cv::VideoCapture cap(m_cam_fd);
-    if(!cap.isOpened() )
-    {
-        cout << "Cannot open the web cam" << endl;
-        exit(-1);
-    }else{
-        cout << "---------------------------" << endl;
-    }
-
-    return 0;
-}
-void DestroyCamera()
-{
-    if (m_cam_fd > -1) {
-        close(m_cam_fd);
-        m_cam_fd = -1;
-    }
-
-}
-
 int startPreview(void)
 {
     int i;
@@ -722,55 +673,89 @@ static void DrawFromRGB565(unsigned char *displayFrame, unsigned char *videoFram
 
 static int cam_index;
 
-void save()
-{// this code is saving a image that camera takes.
+namespace camera{
+    void save(const char *file_name)
+    {// this code is saving a image that camera takes.
 
-    char fileheader[14];	// file header for specify about the file.
-    BITMAPINFOHEADER fileinfoheader;	// image header for specify about image's structure.
-    unsigned char   image[480 * 640 *4] = {0};	// array for image value.
+        char fileheader[14];	// file header for specify about the file.
+        BITMAPINFOHEADER fileinfoheader;	// image header for specify about image's structure.
+        unsigned char   image[480 * 640 *4] = {0};	// array for image value.
 
-    FILE* fp;
-    int w = 640;	//widthn size
-    int h = 480;	//height size
-    int filesize =4*w*h;	// file size. we need RGB's 3bit + 1bit for empty at every point.
+        FILE* fp;
+        int w = 640;	//widthn size
+        int h = 480;	//height size
+        int filesize =4*w*h;	// file size. we need RGB's 3bit + 1bit for empty at every point.
 
-    int ret =0;
-    int i;
-    for(i=0; i<10; i++)
-    {
-        ret = fimc_poll(&m_events_c);	// make delay at fimc_poll method. to do auto focus and capture in dark settings
+        int ret =0;
+        int i;
+        for(i=0; i<10; i++)
+        {
+            ret = fimc_poll(&m_events_c);	// make delay at fimc_poll method. to do auto focus and capture in dark settings
 
-        cam_index = fimc_v4l2_dqbuf(m_cam_fd, 1);	// make macro for read, write from camera
-        DrawFromRGB565(image, (unsigned char*)m_buffers_preview[cam_index].virt.p, 640, \
-				480, 640, 480);	// get image value from camera.
+            cam_index = fimc_v4l2_dqbuf(m_cam_fd, 1);	// make macro for read, write from camera
+            DrawFromRGB565(image, (unsigned char*)m_buffers_preview[cam_index].virt.p, 640, 480, 640, 480);	// get image value from camera.
+            ret = fimc_v4l2_qbuf(m_cam_fd, cam_index);
+        }
 
-        ret = fimc_v4l2_qbuf(m_cam_fd, cam_index);
+        if(!(fp = fopen(file_name, "wb+")))	// open file, if not, print error.
+        {
+            printf("save file open error\n");
+            return;
+        }
+
+        fileheader_init((unsigned char*)fileheader, (h * w) * 4 + 40 + 14);	// make file header.
+        infoheader_init(&fileinfoheader, w, h, 32);	// make image header.
+        fwrite(fileheader, 14, 1, fp);	//write fileheader first.
+        fwrite(&fileinfoheader, 40, 1, fp);	// write imageheader second.
+
+        fwrite(image, CAMERA_PREVIEW_HEIGHT * CAMERA_PREVIEW_WIDTH *4, 1, fp);	// write image value.
+        fclose(fp);
+
     }
 
-    if(!(fp = fopen("saved.bmp", "wb+")))	// open file, if not, print error.
+
+    int CreateCamera(int index)
     {
-        printf("save file open error\n");
-        return;
+        printf("%s :\n", __func__);
+        int ret = 0;
+
+        m_cam_fd = open(CAMERA_DEV_NAME, O_RDWR);
+        if (m_cam_fd < 0) {
+            printf("ERR(%s):Cannot open %s (error : %s)\n", __func__, CAMERA_DEV_NAME, strerror(errno));
+            return -1;
+        }
+        printf("%s: open(%s) --> m_cam_fd %d\n", __func__, CAMERA_DEV_NAME, m_cam_fd);
+
+        ret = fimc_v4l2_querycap(m_cam_fd);
+        CHECK(ret);
+        if (!fimc_v4l2_enuminput(m_cam_fd, index)) {
+            printf("m_cam_fd(%d) fimc_v4l2_enuminput fail\n", m_cam_fd);
+            return -1;
+        }
+        ret = fimc_v4l2_s_input(m_cam_fd, index);
+        CHECK(ret);
+
+        return 0;
     }
+    void DestroyCamera()
+    {
+        if (m_cam_fd > -1) {
+            close(m_cam_fd);
+            m_cam_fd = -1;
+        }
 
-    fileheader_init((unsigned char*)fileheader, (h * w) * 4 + 40 + 14);	// make file header.
-    infoheader_init(&fileinfoheader, w, h, 32);	// make image header.
-    fwrite(fileheader, 14, 1, fp);	//write fileheader first.
-    fwrite(&fileinfoheader, 40, 1, fp);	// write imageheader second.
-
-    fwrite(image, CAMERA_PREVIEW_HEIGHT * CAMERA_PREVIEW_WIDTH *4, 1, fp);	// write image value.
-    fclose(fp);
+    }
 
 }
 
-int main() {
-    cout << "run" << endl;
-    CreateCamera(0);	// create camera. meaning, ready camera. so can take pictures.
-//    startPreview();		// previewing.
-
-   // save();
-
-    //stopPreview();
-    DestroyCamera();
-    return 0;
-}
+//
+//int main() {
+//    CreateCamera(0);	// create camera. meaning, ready camera. so can take pictures.
+////    startPreview();		// previewing.
+//
+//    // save();
+//
+//    //stopPreview();
+//    DestroyCamera();
+//    return 0;
+//}

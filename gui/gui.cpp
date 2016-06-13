@@ -10,6 +10,8 @@
 #include<vector>
 #include<cstdio>
 #include<string>
+#include<iostream>
+#include "../vision/camera.h"
 #include<pthread.h>
 
 #define PATH_IMG_MENU_FLOWER    "img/menu_flower.bmp"
@@ -43,10 +45,10 @@ int selected_page = -1;
 pthread_t display_thread = NULL;
 
 
-void* init_flower_page(void* nullable);
-void* init_info_page(void *nullable);
-void* init_function_page(void* nullable);
-void* init_setting_page(void *nullable);
+void init_flower_page   ();
+void init_info_page     ();
+void init_function_page ();
+void init_setting_page  ();
 
 gui::area area_function_water(60, 160, 60 + 300, 160 + 300);
 gui::area area_function_sound(440, 160, 440 + 300, 160 + 300);
@@ -59,6 +61,41 @@ gui::area area_flower_upload(437, 1110, 437+130, 1110+130);
 
 
 namespace gui{
+
+
+    void draw_page(int page)
+    {
+        printf("[draw_page] page :%d\n",page);
+        if(page == selected_page)
+        {   //same page selected
+            return;
+        }
+
+
+
+
+        switch(page){
+            case MENU_FLOWER:
+                init_flower_page();
+                break;
+            case MENU_INFO:
+                init_info_page();
+                break;
+            case MENU_FUNCTION:
+                init_function_page();
+                break;
+            case MENU_SETTING:
+                init_setting_page();
+                break;
+            default:
+                page = MENU_FLOWER;
+                draw_page(page);
+                break;
+        }
+        selected_page = page;
+    }
+
+
 
     void on_touch(touch::touch_event e)
     {
@@ -108,41 +145,6 @@ namespace gui{
         }
     }
 
-    void draw_page(int page)
-    {
-
-        if(page == selected_page)
-        {   //same page selected
-            return;
-        }
-
-        if(display_thread != NULL )
-        {   //if some thread already run
-            pthread_cancel(display_thread);
-            pthread_join(display_thread, NULL);
-            display_thread = NULL;
-        }
-        switch(page){
-            case MENU_FLOWER:
-                pthread_create(&display_thread, NULL, &init_flower_page, NULL);
-                break;
-            case MENU_INFO:
-                pthread_create(&display_thread, NULL, &init_info_page, NULL);
-                break;
-            case MENU_FUNCTION:
-                pthread_create(&display_thread, NULL, &init_function_page, NULL);
-                break;
-            case MENU_SETTING:
-                pthread_create(&display_thread, NULL, &init_setting_page, NULL);
-                break;
-            default:
-                page = MENU_FLOWER;
-                draw_page(page);
-                break;
-        }
-        selected_page = page;
-    }
-    
     void setup()
     {
         touch::add_callback(&on_touch);
@@ -161,40 +163,40 @@ namespace gui{
 }
 
 
-void* init_flower_page(void* nullable)
+void init_flower_page()
 {
-    display::draw_bmp(pages[0]);
-    while(true)
-    {
-        sleep(10);
-    }
-    pthread_exit(NULL);
-}
-void* init_info_page(void *nullable)
-{
-    display::draw_bmp(pages[1]);
-    while(true)
-    {
-        display::draw_bmp(img_info[INFO_FEW], 500, 220);
-        display::draw_bmp(img_info[INFO_FEW], 500, 440);
-        display::draw_bmp(img_info[INFO_FEW], 500, 660);
-        display::draw_bmp(img_info[INFO_FEW], 500, 880);
-        display::draw_bmp(img_info[INFO_FEW], 500, 1100);
-        sleep(10);
-    }
-    pthread_exit(NULL);
-}
-void* init_function_page(void* nullable)
-{
-    display::draw_bmp(pages[2]);
+    display::draw_bmp(img_pages[0]);
 
-    pthread_exit(NULL);
-}
-void* init_setting_page(void *nullable)
-{
-    display::draw_bmp(pages[3]);
+    camera::CreateCamera(0);
+    sleep(5);
+    camera::save("test123.bmp");
+    sleep(5);
+    camera::DestroyCamera();
 
-    pthread_exit(NULL);
+}
+void init_info_page()
+{
+    cout << "load" << endl;
+    display::draw_bmp(img_pages[1]);
+    cout << "drawn" << endl;
+
+    cout << "drawn2" << endl;
+    display::draw_bmp(img_info[INFO_FEW], 500, 220);
+    display::draw_bmp(img_info[INFO_FEW], 500, 440);
+    display::draw_bmp(img_info[INFO_FEW], 500, 660);
+    display::draw_bmp(img_info[INFO_FEW], 500, 880);
+    display::draw_bmp(img_info[INFO_FEW], 500, 1100);
+
+}
+void init_function_page()
+{
+    display::draw_bmp(img_pages[2]);
+
+}
+void init_setting_page()
+{
+    display::draw_bmp(img_pages[3]);
+
 }
 
 
