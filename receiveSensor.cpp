@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "common.h"
+#include "sendToServer.cpp"
 
 using namespace std;
 
@@ -118,6 +119,7 @@ void _receive(Shared* shared)
 
             printf("%s\n", str);
             sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+            send_to_server(&shared->sensor.illumination, &shared->sensor.humidity, &shared->sensor.temperature, &shared->sensor.soil_humidity);
             sleep(5);
     }
 /* restore the old port settings */

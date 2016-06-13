@@ -79,23 +79,6 @@ int main() {
             /**
              * Temp config for test
              */
-            int dip = dipsw();
-
-            int isEdit = dip&(1<<7);
-            int logout = dip&(1<<6);
-
-
-            if(logout) {
-                shared.mode = NOT_AUTHORIZED;
-                break;
-            }
-
-            if(isEdit) {
-                shared.mode = EDIT_MODE;
-            }
-            else {
-                shared.mode = OBSERVE_MODE;
-            }
 
             usleep(1000000);
         }

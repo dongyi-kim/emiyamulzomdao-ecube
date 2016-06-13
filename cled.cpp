@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include "common.h"
 #include "thread_manager.h"
+#include "dipsw.h"
 
 using namespace std;
 
@@ -58,7 +59,8 @@ void cledContr(int driverfile, int idx_led, int r, int g, int b)
 void _cled(Shared* shared)
 {
     int fd;
-
+    int dip;
+    int preDip = -1;
     // open  driver
     fd = open(DRIVER_CLED, O_RDWR);
     if ( fd < 0 )
@@ -70,6 +72,19 @@ void _cled(Shared* shared)
     bool liq_prev = !shared->liq_exist;
 
     while(1) {
+        dip = dipsw();
+        if(dip & 1)
+        {
+            if(preDip != dip)
+            {
+                cledContr(fd, 0, 0, 0, 0);
+                cledContr(fd, 1, 0, 0, 0);
+                cledContr(fd, 2, 0, 0, 0);
+                cledContr(fd, 3, 0, 0, 0);
+            }
+            preDip = dip;
+            continue;
+        }
         if( liq_prev != shared->liq_exist ) {
             if (!shared->liq_exist) {
                 cledContr(fd, 0, 0, 0, 0);
@@ -84,11 +99,10 @@ void _cled(Shared* shared)
     /*
         if () {
             cledContr(fd, 1, 0, 255, 0);
-        }
-        else {
             cledContr(fd, 1, 0, 0, 0);
         }
-
+        */
+/*
         if () {
             cledContr(fd, 2, 255, 0, 0);
         }

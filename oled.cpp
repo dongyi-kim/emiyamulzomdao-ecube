@@ -453,34 +453,38 @@ void _oled(Shared* shared)
     string prev = "", cur;
 
     while(1) {
+        int cnt = 0;
         chk[0] = s->humidity >= d->humidity;
         chk[1] = s->temperature >= d->temperature;
         chk[2] = s->illumination >= d->illumination;
         chk[3] = s->soil_humidity <= d->soil_humidity;
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(chk[i])
+            {
+                cnt++;
+            }
+        }
         if(s->illumination <= 10)
         {
-            cur = "sleep.img";
+            cur = "oled_face_sleep.img";
         }
-        else if(chk[0] && chk[1] && chk[2] && chk[3])
+        else if(s->soil_humidity >= d->soil_humidity*2)
         {
-            cur = "enough.img";
+            cur = "oled_face_confuse.img";
+        }
+        else if(cnt == 4)
+        {
+            cur = "oled_face_smile.img";
+        }
+        else if(cnt == 0)
+        {
+            cur = "oled_face_angry.img";
         }
         else
         {
-            cur = "not_enough.img";
+            cur = "oled_face_normal.img";
         }
-        /*
-        if(shared->mode == EDIT_MODE)
-        {
-            cur = "second.img";
-        }
-        else {
-            cur = "first.img";
-        }
-
-        
-        oledDisp(cur);
-        */
 
         if(cur != prev)
         {

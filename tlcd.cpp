@@ -384,18 +384,12 @@ void _tlcd(Shared* shared) {
 
         above += ' ';
         under += ' ';
-        //cout<<above<<endl;
-        //cout<<under<<endl;
         if(prev_above == above && prev_under == under) {
             
         }
 
         else
         {
-
-            
-            //clearScreen(2);
-            //clearScreen(1);
             setDDRAMAddr(0,1);
             writeStr(above.c_str());
             setDDRAMAddr(0,2);

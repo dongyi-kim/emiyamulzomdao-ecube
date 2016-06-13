@@ -24,6 +24,7 @@ size_t writeCallback(char* buf, size_t size, size_t nmemb, void* up)
 
 int sendConfigToServer(Data data)
 {
+    
     cout<<data.illumination<<" "<<data.temperature<<" "<<data.humidity<<" "<<data.soil_humidity<<endl;
 
     return 200;
