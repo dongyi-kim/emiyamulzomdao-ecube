@@ -1,3 +1,10 @@
+/*
+    @file   -   dipsw.cpp
+    @author -   
+    @brief  -   read that dip switch is on or off.
+    @reference
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,25 +17,24 @@
 #include <unistd.h>
 #include "thread_manager.h"
 
-#define DRIVER_DIPSW		"/dev/cndipsw"
+#define DRIVER_DIPSW		"/dev/cndipsw"///< dipswitch file driver path
 
 int dipsw()
 {
     int fd;
     int retvalue;
 
-    // open  driver
-    fd = open(DRIVER_DIPSW, O_RDWR);
+    fd = open(DRIVER_DIPSW, O_RDWR);///< open dip switch file driver
     if ( fd < 0 )
     {
         perror("driver  open error.\n");
         return -1;
     }
-    pthread_mutex_lock(thread_manager::get_dips());
+    pthread_mutex_lock(thread_manager::get_dips());///< waiting for printing picture of oled
     read(fd, &retvalue, 8);
     pthread_mutex_unlock(thread_manager::get_dips());
-    retvalue &= 0xFF;
-    close(fd);
+    retvalue &= 0xFF;///< and operation what is dip switch turn on.
+    close(fd);///< close file driver.
 
     return retvalue;
 }
