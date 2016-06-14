@@ -2,6 +2,7 @@
 	@file	-	buzzer.cpp
 	@author	-	
 	@brief	-	control buzzer
+	@reference -	system programming([Practice]8th_Device driver.pptx)
 */
 #include <stdio.h>
 #include <stdlib.h>
