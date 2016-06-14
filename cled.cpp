@@ -72,33 +72,30 @@ void _cled(Shared* shared)
     bool liq_prev = !shared->liq_exist;
 
     while(1) {
-        /*
-        dip = dipsw();
-        if(dip & 2)
+        dip = dipsw();//load dip switch value
+        if(dip & 2)//if dip switch 2 turn on all cled off.
         {
-            if(preDip != dip)
+            if(preDip != dip)//if dip switch value is same with preview dip switch value, nothing.
             {
                 cledContr(fd, 0, 0, 0, 0);
                 cledContr(fd, 1, 0, 0, 0);
                 cledContr(fd, 2, 0, 0, 0);
                 cledContr(fd, 3, 0, 0, 0);
             }
-            preDip = dip;
-            usleep(1000000);
-            continue;
+            preDip = dip;//preview dip switch value
         }
-        */
-        if( liq_prev != shared->liq_exist ) {
-            if (!shared->liq_exist) {
+        //dip switch 2 turn off, cled can turn on.
+        else if( liq_prev != shared->liq_exist ) {//if liquid height is same preview liquid height, nothing.
+            if (!shared->liq_exist) {//liquid height is enough, cled0 turn off
                 cledContr(fd, 0, 0, 0, 0);
             }
-            else {
+            else {//liquid height is not enough, cled0 turn on with blue
                 cledContr(fd, 0, 0, 0, 255);
             }
 
         }
-
         liq_prev = shared->liq_exist;
+        usleep(1000000);
     /*
         if () {
             cledContr(fd, 1, 0, 255, 0);
@@ -127,5 +124,5 @@ void _cled(Shared* shared)
 }
 
 void* cled(void* shared) {
-    _cled((Shared*)shared);
+    _cled((Shared*)shared);//for use to thread.
 }

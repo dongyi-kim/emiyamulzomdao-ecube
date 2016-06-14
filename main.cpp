@@ -20,11 +20,16 @@
 #include "tlcd.h"
 #include "receiveSensor.h"
 #include "gui/touch.h"
+#include "curl_common.h"
 
 using namespace std;
 
+
 Shared shared;
 
+Shared* getShared() {
+    return &shared;
+}
 const int arr[] = {1};
 
 void click_config(touch::touch_event e)
@@ -89,7 +94,7 @@ int main() {
 
             auth::input_account(&shared);
 
-            int http_status = auth::authorize(id, &ret);
+            int http_status = authorize(shared.id, &ret);
 
             if( http_status == 200 ) { //when if login is complete
                 int illum, temp, humid, s_humid;

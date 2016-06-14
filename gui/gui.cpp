@@ -11,9 +11,10 @@
 #include<cstdio>
 #include<string>
 #include<iostream>
-#include "../vision/camera.h"
-#include<pthread.h>
 
+#include<pthread.h>
+#include "../cameratest.h"
+#include "../vision/camera.h"
 #define PATH_IMG_MENU_FLOWER    "img/menu_flower.bmp"
 #define PATH_IMG_MENU_INFO      "img/menu_info.bmp"
 #define PATH_IMG_MENU_FUNCTION  "img/menu_function.bmp"
@@ -23,7 +24,8 @@
 #define PATH_IMG_INFO_TOO       "img/too.bmp"
 #define PATH_IMG_INFO_GOOD      "img/good.bmp"
 
-typedef vector<vector<unsigned long> > bitmap_t;
+#define PATH_DIR_CAPTURE        "img/capture"
+
 
 
 #define INFO_FEW    0
@@ -34,6 +36,8 @@ typedef vector<vector<unsigned long> > bitmap_t;
 #define MENU_INFO       1
 #define MENU_FUNCTION   2
 #define MENU_SETTING    3
+
+typedef vector<vector<unsigned long> > bitmap_t;
 
 using namespace std;
 bitmap_t img_pages[4];
@@ -162,6 +166,41 @@ namespace gui{
 
 }
 
+namespace flower_page{
+    vector<string> vpath;
+    void init()
+    {
+        //get the list of image file
+        vpath.clear();
+
+        DIR *dpdf;
+        struct dirent *epdf;
+        dpdf = opendir(PATH_DIR_CAPTURE);
+        if (dpdf != NULL){
+            while (epdf = readdir(dpdf)){
+                string s = epdf->d_name;
+                int len = s.length();
+
+                vpath.push_back(epdf->d_name);
+            }
+        }
+
+
+    }
+}
+
+namespace info_page{
+
+}
+
+namespace function_page{
+
+}
+
+namespace setting_page
+{
+
+}
 
 void init_flower_page()
 {
@@ -174,6 +213,9 @@ void init_flower_page()
     camera::DestroyCamera();*/
 
 }
+
+
+
 void init_info_page()
 {
     cout << "load" << endl;

@@ -21,28 +21,32 @@ using namespace std;
 
 void ledContr(int driverfile, Data* s, Data* d)
 {
+    //led show sensor's soil humidity compare with plant's standard value.
     int ledOn = 8;
     int ledOff = 0;
     int wdata, rdata, temp ;
 
-    int std_sh = d->soil_humidity;
-    int sh = s->soil_humidity;
+    int std_sh = d->soil_humidity;//plant's standard value
+    int sh = s->soil_humidity;//value of sensor measure
 
-    if(std_sh < sh)
-    {
-        ledOff = (sh-std_sh)/70;
+    if(std_sh < sh)//soil humid sensor has reverse value, smaller value more humid
+    {//sensor value greater than standard value ledOff bigger;
+        ledOff = (sh-std_sh)/10;
+        if(ledOff > 8 || (sh >= 500 && sh <= 550))//soil humid sensor in water has 200~250 value. maximum dry value has 500~550 value.
+        {
+            ledOff = 8;
+        }
+        else if(sh >= 200 && sh <= 250)
+        {
+            ledOff = 0;
+        }
     }
-    if(sh == 0)
-    {
-        ledOff = 8;
-    }
-
 
     // control led
     ledOn = MAX_LED_NO - ledOff;
     for(int i = 0 ; i < MAX_LED_NO ; i++)
     {
-        pthread_mutex_lock(thread_manager::get_bled());
+        pthread_mutex_lock(thread_manager::get_bled());//waiting print picture complete in oled
         read(driverfile, &rdata, 4);
         pthread_mutex_unlock(thread_manager::get_bled());
         temp = 1;
@@ -56,11 +60,10 @@ void ledContr(int driverfile, Data* s, Data* d)
             temp <<= (i);
             wdata = rdata | temp;
         }
-        pthread_mutex_lock(thread_manager::get_bled());
+        pthread_mutex_lock(thread_manager::get_bled());//waiting print picture complete in oled
         write(driverfile, &wdata, 4);
         pthread_mutex_unlock(thread_manager::get_bled());
     }
-
     return;
 }
 
@@ -76,7 +79,7 @@ void _bled(Shared* shared)
         return;
     }
     while(1) {
-        ledContr(fd, &shared->sensor, &shared->data);
+        ledContr(fd, &shared->sensor, &shared->data);//led control
     }
     close(fd);
 
@@ -84,5 +87,5 @@ void _bled(Shared* shared)
 }
 
 void* bled(void* shared) {
-    _bled((Shared*)shared);
+    _bled((Shared*)shared);//for use to thread
 }

@@ -24,10 +24,10 @@ int dipsw()
         perror("driver  open error.\n");
         return -1;
     }
-    pthread_mutex_lock(thread_manager::get_dips());
+    pthread_mutex_lock(thread_manager::get_dips());//waiting print picture complete in oled
     read(fd, &retvalue, 8);
     pthread_mutex_unlock(thread_manager::get_dips());
-    retvalue &= 0xFF;
+    retvalue &= 0xFF;//dip switch use or operator.
     close(fd);
 
     return retvalue;

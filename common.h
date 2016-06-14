@@ -45,7 +45,9 @@ public:
     std::string id;
     bool liq_exist;
     int segValue;
+    bool give_water;
     Shared(){
+        give_water = false;
         liq_exist = true;
         segValue = -1;
         mode = -1;
@@ -68,5 +70,7 @@ namespace auth{
     extern void input_account(Shared* s);
     extern int authorize(string id, string* result);
 }
+
+Shared* getShared();
 
 #endif //SYSPROG_COMMON_H

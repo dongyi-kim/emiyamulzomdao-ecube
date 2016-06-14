@@ -30,21 +30,6 @@ const unsigned short NumData[10][MAX_COLUMN_NUM]=
                 {0xfe00,0xfd4F,0xfb49,0xf77F,0xef00}  // 9
         };
 
-const unsigned short SNS[2][MAX_COLUMN_NUM] =
-        {
-                {0xfe26, 0xfd19, 0xfb09, 0xf709, 0xef06},
-                {0xfe0C, 0xfd12, 0xfb12, 0xf732, 0xef4C}
-        };
-
-const unsigned short degree_C[MAX_COLUMN_NUM] =
-        {0xfe01, 0xfd3C, 0xfb42, 0xf742, 0xef24};
-
-const unsigned short soil_humid_charge[2][MAX_COLUMN_NUM] =
-        {
-                {0xfe04, 0xfd06, 0xfb07, 0xf708, 0xef7E},
-                {0xfe42, 0xfd42, 0xfb7E, 0xf714, 0xef1C}
-        };
-
 const unsigned short config[4][2][MAX_COLUMN_NUM] = {
         {
                 {0xfe00, 0xfd41, 0xfb7F, 0xf741, 0xef00}, //I
@@ -66,8 +51,8 @@ const unsigned short config[4][2][MAX_COLUMN_NUM] = {
 
 const unsigned short clear[2][MAX_COLUMN_NUM] =
         {
-                {0xfe00, 0xfe00, 0xfe00, 0xfe00, 0xfe00},
-                {0xfe00, 0xfe00, 0xfe00, 0xfe00, 0xfe00}
+                {0xfe00, 0xfe00, 0xfe00, 0xfe00, 0xfe00},//turn off
+                {0xfe00, 0xfe00, 0xfe00, 0xfe00, 0xfe00}//turn off
         };
 
 static struct termios oldt, newt;
@@ -87,24 +72,6 @@ void mled_changemode(int dir)
 
     }
 }
-//
-//
-//int mled_kbhit(void)
-//{
-//    struct timeval tv;
-//    fd_set rdfs;
-//
-//    tv.tv_sec = 0;
-//    tv.tv_usec = 0;
-//
-//    FD_ZERO(&rdfs);
-//    FD_SET(STDIN_FILENO , &rdfs);
-//
-//    select(STDIN_FILENO + 1 , &rdfs , NULL, NULL, &tv);
-//
-//    return FD_ISSET(STDIN_FILENO , &rdfs);
-//}
-//
 
 
 #define ONE_LINE_TIME_U 	1000
@@ -123,10 +90,10 @@ int displayDotLed(int driverfile, State* s)
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {
-                wdata[0] = clear[0][j];
-                wdata[1] = clear[1][j];
+                wdata[0] = clear[0][j];//left matrix led turn off
+                wdata[1] = clear[1][j];//right matrix led turn off
 
-                pthread_mutex_lock(thread_manager::get_mled());
+                pthread_mutex_lock(thread_manager::get_mled());//waiting print picture complete in oled
                 write(driverfile,(unsigned char*)wdata, 4);
                 pthread_mutex_unlock(thread_manager::get_mled());
                 usleep(ONE_LINE_TIME_U);
@@ -142,10 +109,10 @@ int displayDotLed(int driverfile, State* s)
                 for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
                 {
                     if( 1 <= _state && _state <= 4 ) {
-                        wdata[0] = config[_state-1][0][j];
-                        wdata[1] = config[_state-1][1][j];
+                        wdata[0] = config[_state-1][0][j];//left matrix led show
+                        wdata[1] = config[_state-1][1][j];//right matrix led show
                     }
-                    pthread_mutex_lock(thread_manager::get_mled());
+                    pthread_mutex_lock(thread_manager::get_mled());//waiting print picture complete in oled
                     write(driverfile,(unsigned char*)wdata, 4);
                     pthread_mutex_unlock(thread_manager::get_mled());
                     usleep(ONE_LINE_TIME_U);
@@ -187,5 +154,5 @@ void _mled(Shared* s)
 
 void* mled(void* s)
 {
-    _mled((Shared*)s);
+    _mled((Shared*)s);//for use thread.
 }

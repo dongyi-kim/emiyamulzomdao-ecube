@@ -61,61 +61,57 @@ void fnd_changemode(int dir)
 }
 
 #define ONE_SEG_DISPLAY_TIME_USEC	1000
-// return 1 => exit  , 0 => success
-int fndDisp(int driverfile, int* num , int dotflag)
-{
 
-    int cSelCounter,loopCounter;
-    int temp, i, totalCount;
+int fndDisp(int driverfile, int* num , int dotflag)
+{//display 7-segment
+
+    int cSelCounter;
+    int temp;
     unsigned short wdata;
     int dotEnable[MAX_FND_NUM];
-    int fndChar[MAX_FND_NUM] = {0, 0, 0, 0, 0, 0};
+    int fndChar[MAX_FND_NUM] = {0, 0, 0, 0, 0, 0};//save segment value
 
-    for (i = 0; i < MAX_FND_NUM ; i++ )
+    for (int i = 0; i < MAX_FND_NUM ; i++ )
     {
         dotEnable[i] = dotflag & (0x1 << i);
     }
 
-    cout<<(*num)<<endl;
     // if 6 fnd
     while(1) {
 
-        if( (*num) == -1 ) {
+        if( (*num) == -1 ) {//init value
             for(i = 5 ; i >= 0 ; i--)
             {
-                fndChar[i] = 10;
+                fndChar[i] = 10;//all 7-segment off
             }
         }
 
         else {
-            temp = (*num)%1000000;
+            temp = (*num)%1000000;//maximum 6 digit.
 
             if( temp == -1 ) temp = 0;
             for(i = 5 ; i >= 0 ; i--)
             {
                 fndChar[i] = temp%10;
                 temp /= 10;
-            }
+            }//make 7 segment digit number;
         }
-        int duration = 1;
-        while(duration--) {
-            cSelCounter = 0;
-            while (cSelCounter < MAX_FND_NUM) {
-                wdata = segNum[fndChar[cSelCounter]] | segSelMask[cSelCounter];
-                if (dotEnable[cSelCounter])
-                    wdata |= DOT_OR_DATA;
-                pthread_mutex_lock(thread_manager::get_seg());
-                write(driverfile, &wdata, 2);
-                pthread_mutex_unlock(thread_manager::get_seg());
-                cSelCounter++;
+        cSelCounter = 0;
+        while (cSelCounter < MAX_FND_NUM) {//one loop turn on one segment value.
+            wdata = segNum[fndChar[cSelCounter]] | segSelMask[cSelCounter];
+            if (dotEnable[cSelCounter])
+                wdata |= DOT_OR_DATA;
+            pthread_mutex_lock(thread_manager::get_seg());//while oled print picture, segement waiting.
+            write(driverfile, &wdata, 2);
+            pthread_mutex_unlock(thread_manager::get_seg());
+            cSelCounter++;
 
 
-                usleep(ONE_SEG_DISPLAY_TIME_USEC);
+            usleep(ONE_SEG_DISPLAY_TIME_USEC);
 
-            }
         }
         wdata = 0;
-        pthread_mutex_lock(thread_manager::get_seg());
+        pthread_mutex_lock(thread_manager::get_seg());//while oled print picture, segement waiting.
         write(driverfile, &wdata, 2);
         pthread_mutex_unlock(thread_manager::get_seg());
     }

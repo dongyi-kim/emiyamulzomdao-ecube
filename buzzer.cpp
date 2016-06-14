@@ -27,14 +27,14 @@ void buzzer(int buzzerNumber)
 		return;
 	}
 	// control led
-	pthread_mutex_lock(thread_manager::get_buzz());
+	pthread_mutex_lock(thread_manager::get_buzz());//waiting print picture complete in oled
 	write(fd, &buzzerNumber, 4);
 	pthread_mutex_unlock(thread_manager::get_buzz());
 
 	usleep(100000);
     buzzerNumber = 0;
 
-	pthread_mutex_lock(thread_manager::get_buzz());
+	pthread_mutex_lock(thread_manager::get_buzz());//waiting print picture complete in oled
 	write(fd, &buzzerNumber, 4);
 	pthread_mutex_unlock(thread_manager::get_buzz());
 
@@ -45,14 +45,11 @@ void buzzer(int buzzerNumber)
 
 void dip_buzzer(const int arr[], const int arr_len)
 {
-	int i;
+	int dips = dipsw();//load dip switch value
 
-	int dips = dipsw();
-
-	if((dips & 1) != 1)
+	if((dips & 1) != 1)//if dip switch 1 turn on, buzzer not alarm.
 	{
-
-		for(i = 0 ; i < arr_len ; i++)
+		for(int i = 0 ; i < arr_len ; i++)
 		{
 			buzzer(arr[i]);
 		}

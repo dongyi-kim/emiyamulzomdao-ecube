@@ -22,10 +22,11 @@ included by <termios.h> */
 
 void _receive(Shared* shared)
 {
-    char str[255];
+    bool wait_flag = false;
     int fd, c, res;
     struct termios oldtio, newtio;
     char buf[255];
+    char buf2[255];
     /*
     Open modem device for reading and writing and not as controlling tty
     because we don't want to get killed if linenoise sends CTRL-C.
@@ -96,34 +97,53 @@ void _receive(Shared* shared)
     */
     tcflush(fd, TCIFLUSH);
     tcsetattr(fd, TCSANOW, &newtio);
+
+    shared->give_water = true;
     while (1) {     /* loop until we have a terminating condition */
             /* read blocks program execution until a line terminating character is
             input, even if more than 255 chars are input. If the number
             of characters read is smaller than the number of chars available,
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
-            
-            buf[0] = 2;
-            res = write(fd, buf, 1);
-            sleep(5);
 
-            printf("%d\n", res);
-            cout<<"hi"<<endl;
-            buf[0] = 1;
-            res = write(fd, buf, 1);
 
-            res = read(fd, str, 255);
-            str[res] = 0;             /* set end of string, so we can printf */
+        printf("%d\n", res);
+        cout<<"hi"<<endl;
 
-            printf("%s\n", str);
-            printf("%d\n", res);
-            if( strlen(str) != 0 )
-                sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
-            //send_to_server(shared->sensor, shared->id);
-            
-        
-            sleep(3);
-            
+
+            //res = read(fd, buf2, 255);
+            //res = read(fd, str, 50);
+            //buf[res] = 0;
+                      /* set end of string, so we can printf */
+
+            if(shared->give_water == true) {
+                printf("-1\n");
+                buf[0] = 2;
+                buf[1] = NULL;
+                write(fd, buf, 1);
+
+                shared->give_water = false;
+
+                sleep(2);
+                printf("1\n");
+            }
+            else {
+
+                buf[0] = 1;
+                write(fd, buf, 1);
+                sleep(3);
+                res = read(fd, buf2, 255);
+
+                printf("%s\n", buf2);
+                buf2[res] = 0;
+                sscanf(buf2, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature,
+                       &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+
+
+                sleep(2);
+            }
+        sleep(2);
+
     }
 /* restore the old port settings */
     tcsetattr(fd, TCSANOW, &oldtio);

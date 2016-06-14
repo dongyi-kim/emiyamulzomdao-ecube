@@ -11,10 +11,6 @@
 #include <pthread.h>
 #include "SecBuffer.h"
 #include "camera.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/video/background_segm.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <cstdio>
 #include <iostream>
 using namespace std;
@@ -542,14 +538,14 @@ int CreateCamera(int index)
     CHECK(ret);
 
 
-    cv::VideoCapture cap(m_cam_fd);
-    if(!cap.isOpened() )
-    {
-        cout << "Cannot open the web cam" << endl;
-        exit(-1);
-    }else{
-        cout << "---------------------------" << endl;
-    }
+    //cv::VideoCapture cap(m_cam_fd);
+//    if(!cap.isOpened() )
+//    {
+//        cout << "Cannot open the web cam" << endl;
+//        exit(-1);
+//    }else{
+//        cout << "---------------------------" << endl;
+//    }
 
     return 0;
 }
@@ -722,7 +718,7 @@ static void DrawFromRGB565(unsigned char *displayFrame, unsigned char *videoFram
 
 static int cam_index;
 
-void save()
+void save(string path)
 {// this code is saving a image that camera takes.
 
     char fileheader[14];	// file header for specify about the file.
@@ -747,6 +743,8 @@ void save()
         ret = fimc_v4l2_qbuf(m_cam_fd, cam_index);
     }
 
+    if( path == "" ) path = "saved.bmp";
+
     if(!(fp = fopen("saved.bmp", "wb+")))	// open file, if not, print error.
     {
         printf("save file open error\n");
@@ -763,14 +761,13 @@ void save()
 
 }
 
-int main() {
+void capture(string path) {
     cout << "run" << endl;
     CreateCamera(0);	// create camera. meaning, ready camera. so can take pictures.
-//    startPreview();		// previewing.
+    startPreview();		// previewing.
 
-   // save();
+    save(path);
 
-    //stopPreview();
+    stopPreview();
     DestroyCamera();
-    return 0;
 }

@@ -23,7 +23,8 @@ using namespace std;
 
 
 
-namespace display{
+namespace display
+{
 
     int screen_width;
     int screen_height;
@@ -40,7 +41,6 @@ namespace display{
 
 
     }
-
 
     unsigned long* lcd(int x, int y){
         int lcd_y = x;
@@ -68,6 +68,7 @@ namespace display{
         unsigned long   *ptr;
         struct  fb_var_screeninfo fbvar;
         struct  fb_fix_screeninfo fbfix;
+
         pthread_mutex_lock(&display_mutex);
         printf("[display_mutex] lock\n");
 
@@ -188,7 +189,7 @@ namespace display{
 
         // check 24bit
 
-        cout << "bit : " << bmpInfoHeader->biBitCount << endl;
+        //cout << "bit : " << bmpInfoHeader->biBitCount << endl;
         if(BIT_VALUE_24BIT != (bmpInfoHeader->biBitCount))     // bit value
         {
             printf("It supports only 24bit bmp!\n");

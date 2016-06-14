@@ -5,6 +5,7 @@
 using namespace std;
 
 const string POST_HOST = "http://immense-garden-82747.herokuapp.com/api/data/";
+const string USER_HOST = "http://immense-garden-82747.herokuapp.com/api/users";
 const string PHOTO_HOST = "http://immense-garden-82747.herokuapp.com/api/photos/";
 
 /**
@@ -29,8 +30,38 @@ int sendConfigToServer(Data data, string id)
 {
     
     cout<<data.illumination<<" "<<data.temperature<<" "<<data.humidity<<" "<<data.soil_humidity<<endl;
+    char query[200];
+    CURL *curl;
+    CURLcode res;
+    int http_code;
 
-    return 200;
+    /* In windows, this will init the winsock stuff */
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    /* get a curl handle */
+    curl = curl_easy_init();
+    if(curl) {
+        /* First set the URL that is about to receive our POST. This URL can
+           just as well be a https:// URL if that is what should receive the
+           data. */
+        string host = USER_HOST+id;
+        curl_easy_setopt(curl, CURLOPT_URL, host.c_str());
+        /* Now specify the POST data */
+        sprintf(query, "data=%d_%d_%d_%d", d.illumination, d.humidity, d.temperature, d.soil_humidity);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, query);
+
+        /* Perform the request, res will get the return code */
+        curl_easy_perform(curl);
+
+        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+        /* Check for errors */
+
+        curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
+
+    return http_code;
 }
 
 
@@ -121,5 +152,41 @@ int sendFileToServer(string path, string id) {
         /* free slist */
         curl_slist_free_all (headerlist);
     }
+    return http_code;
+}
+
+int authorize(string id, string* result) {
+    const string HOST = "http://immense-garden-82747.herokuapp.com";
+
+    CURL *curl;
+    CURLcode res;
+    int http_code;
+
+    char buffer[100];
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl = curl_easy_init();
+
+    if(curl) {
+
+        const string USER_GET = HOST+"/api/users/"+id;
+
+        curl_easy_setopt(curl, CURLOPT_URL, USER_GET.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)result);
+        res = curl_easy_perform(curl);
+
+        if( res != CURLE_OK ) {
+            return -1;
+        }
+
+        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
+        cout<<http_code<<endl;
+        curl_easy_cleanup(curl);
+    }
+
+    curl_global_cleanup();
+
     return http_code;
 }
