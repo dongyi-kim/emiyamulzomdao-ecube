@@ -2,7 +2,7 @@
 	@file	-	tlcd.cpp
 	@author	-	
 	@brief	-	write text on text lcd
-	@reference - system programming([Practice]8th_Device_Driver.pptx)
+	@reference - /root/periApp/tlcdtest/tlcdtest.c(system programming practice 7th_Device_Driver.pptx)
 */
 
 #include <cstdio>
