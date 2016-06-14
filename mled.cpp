@@ -1,3 +1,9 @@
+/*
+	@file	-	mled.cpp
+	@author	-	
+	@brief	-	control dot matrix led
+	@reference -	system programming([Practice]7th_Device driver.pptx)
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,10 +18,10 @@
 #include "common.h"
 #include "thread_manager.h"
 
-#define DRIVER_MLED		"/dev/cnmled"
+#define DRIVER_MLED		"/dev/cnmled"///< dot matrix led file driver path.
 
-#define MAX_COLUMN_NUM	5
-// 0 ~ 9
+#define MAX_COLUMN_NUM	5 ///< dot matrix 7(row)*5(col)
+
 const unsigned short NumData[10][MAX_COLUMN_NUM]=
         {
                 {0xfe00,0xfd7F,0xfb41,0xf77F,0xef00}, // 0
@@ -29,22 +35,7 @@ const unsigned short NumData[10][MAX_COLUMN_NUM]=
                 {0xfe00,0xfd7F,0xfb49,0xf77F,0xef00}, // 8
                 {0xfe00,0xfd4F,0xfb49,0xf77F,0xef00}  // 9
         };
-
-const unsigned short SNS[2][MAX_COLUMN_NUM] =
-        {
-                {0xfe26, 0xfd19, 0xfb09, 0xf709, 0xef06},
-                {0xfe0C, 0xfd12, 0xfb12, 0xf732, 0xef4C}
-        };
-
-const unsigned short degree_C[MAX_COLUMN_NUM] =
-        {0xfe01, 0xfd3C, 0xfb42, 0xf742, 0xef24};
-
-const unsigned short soil_humid_charge[2][MAX_COLUMN_NUM] =
-        {
-                {0xfe04, 0xfd06, 0xfb07, 0xf708, 0xef7E},
-                {0xfe42, 0xfd42, 0xfb7E, 0xf714, 0xef1C}
-        };
-
+//when edit mode show selected menu to alphabet.
 const unsigned short config[4][2][MAX_COLUMN_NUM] = {
         {
                 {0xfe00, 0xfd41, 0xfb7F, 0xf741, 0xef00}, //I
@@ -63,7 +54,7 @@ const unsigned short config[4][2][MAX_COLUMN_NUM] = {
                 {0xfe7F, 0xfd08, 0xfb08, 0xf708, 0xef7F}  //H
         }
 };
-
+//turn off 7-segment
 const unsigned short clear[2][MAX_COLUMN_NUM] =
         {
                 {0xfe00, 0xfe00, 0xfe00, 0xfe00, 0xfe00},
@@ -87,46 +78,30 @@ void mled_changemode(int dir)
 
     }
 }
-//
-//
-//int mled_kbhit(void)
-//{
-//    struct timeval tv;
-//    fd_set rdfs;
-//
-//    tv.tv_sec = 0;
-//    tv.tv_usec = 0;
-//
-//    FD_ZERO(&rdfs);
-//    FD_SET(STDIN_FILENO , &rdfs);
-//
-//    select(STDIN_FILENO + 1 , &rdfs , NULL, NULL, &tv);
-//
-//    return FD_ISSET(STDIN_FILENO , &rdfs);
-//}
-//
 
-
-#define ONE_LINE_TIME_U 	1000
-// exit return => 0 , success return => 1
-int displayDotLed(int driverfile, State* s)
+#define ONE_LINE_TIME_U 	1000///< show time of each column 
+/**
+control display dot matrix led
+*/
+void displayDotLed(int driverfile, State* s)
 {
     int i, j;
-    unsigned short wdata[2] = {0, 0};
+    unsigned short wdata[2] = {0, 0};//index[0] is left dot matrix led, index[1] is right dot matrix led
 
-    int _state;
+    int _state;///< selected menu
 
     bool init_flag = true;
 
     while(1)
     {
+        //if len is 0(not select menu), initialize dot matrix led
         if( s->len == 0 && init_flag ) {
             for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
             {
-                wdata[0] = clear[0][j];
-                wdata[1] = clear[1][j];
+                wdata[0] = clear[0][j];///< turn off left dot matrix led
+                wdata[1] = clear[1][j];///< turn off right dot matrix led
 
-                pthread_mutex_lock(thread_manager::get_mled());
+                pthread_mutex_lock(thread_manager::get_mled());///< waiting for printing picture of oled.
                 write(driverfile,(unsigned char*)wdata, 4);
                 pthread_mutex_unlock(thread_manager::get_mled());
                 usleep(ONE_LINE_TIME_U);
@@ -134,35 +109,32 @@ int displayDotLed(int driverfile, State* s)
 
             init_flag = false;
         }
-
+        //display dot matrix led, selected menu.
         else {
             for(i = 0 ; i < s->len ; i++)
             {
-                _state = s->state[i];
+                _state = s->state[i];//selected menu
+                //turn on left and right dot matrix led by selected menu(IL:illumination, TP:temperature, HD:humidity, SH:soil humidity)
                 for(j = 0 ; j < MAX_COLUMN_NUM ; j++)
                 {
                     if( 1 <= _state && _state <= 4 ) {
                         wdata[0] = config[_state-1][0][j];
                         wdata[1] = config[_state-1][1][j];
                     }
-                    pthread_mutex_lock(thread_manager::get_mled());
+                    pthread_mutex_lock(thread_manager::get_mled());///< waiting for printing picture of oled.
                     write(driverfile,(unsigned char*)wdata, 4);
                     pthread_mutex_unlock(thread_manager::get_mled());
                     usleep(ONE_LINE_TIME_U);
                 }
             }
-
             init_flag = true;
         }
-
-        
-
     }
     wdata[0]= 0;
     wdata[1]= 0;
     write(driverfile,(unsigned char*)wdata,4);
 
-    return 1;
+    return;
 }
 
 void _mled(Shared* s)
@@ -170,8 +142,8 @@ void _mled(Shared* s)
     int fd;
 
     mled_changemode(1);
-    // open  driver
-    fd = open(DRIVER_MLED, O_RDWR);
+    
+    fd = open(DRIVER_MLED, O_RDWR);///< open dot matrix led file driver
     if ( fd < 0 )
     {
         perror("driver  open error.\n");
