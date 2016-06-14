@@ -1,6 +1,9 @@
-//
-// Created by root on 16. 6. 12.
-//
+/*
+    @file   -   receiveSensor.cpp
+    @author -   
+    @brief  -   receive value from arduino sensor by usb serial communication.
+    @reference - http://www.tldp.org/HOWTO/Serial-Programming-HOWTO
+*/
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -22,10 +25,10 @@ included by <termios.h> */
 
 void _receive(Shared* shared)
 {
-    char str[255];
+    char bufr[255];
     int fd, c, res;
     struct termios oldtio, newtio;
-    char buf[255];
+    char bufw[255];
     /*
     Open modem device for reading and writing and not as controlling tty
     because we don't want to get killed if linenoise sends CTRL-C.
@@ -103,22 +106,19 @@ void _receive(Shared* shared)
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
             
-            buf[0] = 2;
-            res = write(fd, buf, 1);
-            sleep(5);
+            bufw[0] = 2;///< if bufw[0] was 2, run water pump
+            res = write(fd, bufw, 1);///< serial write to arduino
+            sleep(5);///< run water pump for 3 second.
 
+            bufw[0] = 1;///< if bufw[0] was 1, read sensor value.
+            res = write(fd, bufw, 1);///< serial write to arduino.
+
+            res = read(fd, bufr, 255);///< read sensor value in bufr.
+            bufr[res] = 0;
+
+            printf("%s\n", bufr);
             printf("%d\n", res);
-            cout<<"hi"<<endl;
-            buf[0] = 1;
-            res = write(fd, buf, 1);
-
-            res = read(fd, str, 255);
-            str[res] = 0;             /* set end of string, so we can printf */
-
-            printf("%s\n", str);
-            printf("%d\n", res);
-            if( strlen(str) != 0 )
-                sscanf(str, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+            sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
             //send_to_server(shared->sensor, shared->id);
             
         
