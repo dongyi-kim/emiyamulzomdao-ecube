@@ -31,7 +31,6 @@ namespace gui{
 
 
     void setup();
-
-
 }
+
 #endif //EMIYAMULZOMDAO_ECUBE_GUI_H

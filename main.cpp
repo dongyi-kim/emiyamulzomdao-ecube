@@ -34,8 +34,6 @@ const int arr[] = {1};
 
 void click_config(touch::touch_event e)
 {
-    
-
     // filter touch event with bit mask
     if((e.event_code & touch::EVENT_TOUCH_DOWN) > 0 )
         if( 0 < e.y && e.y < 100 && 600 < e.x && e.x < 800 ) {

@@ -29,8 +29,8 @@ const int buz_len[10] = {
 
 #define DRIVER_KEY      "/dev/cnkey"
 
-#define KEYPAD_SAVE 16
-#define KEYPAD_DELETE 14
+#define KEYPAD_SAVE     16
+#define KEYPAD_DELETE   14
 
 #define KEYPAD_I 1 // illumination
 #define KEYPAD_T 5 // temperature

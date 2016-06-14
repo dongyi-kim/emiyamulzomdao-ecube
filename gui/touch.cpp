@@ -24,7 +24,7 @@
 #define  INPUT_DEVICE_LIST	"/proc/bus/input/devices"
 #define  EVENT_STR		"/dev/input/event"
 #define  MAX_BUFF		200
-
+#define EVENT_NUM       2
 int		screen_width;
 int		screen_height;
 int		bits_per_pixel;

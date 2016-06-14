@@ -11,6 +11,9 @@
 #include<cstdio>
 #include<string>
 #include<iostream>
+#include<string.h>
+#include<algorithm>
+#include<utility>
 
 #include<pthread.h>
 #include "../cameratest.h"
@@ -24,7 +27,7 @@
 #define PATH_IMG_INFO_TOO       "img/too.bmp"
 #define PATH_IMG_INFO_GOOD      "img/good.bmp"
 
-#define PATH_DIR_CAPTURE        "img/capture"
+#define PATH_DIR_CAPTURE        "img/capture/"
 
 
 
@@ -54,6 +57,11 @@ void init_info_page     ();
 void init_function_page ();
 void init_setting_page  ();
 
+gui::area area_menu_flower(0,0, 0 + 200, 0 + 80);
+gui::area area_menu_info(200, 0, 200 + 200, 0+ 80);
+gui::area area_menu_function(400, 0, 400 + 200, 0+ 80);
+gui::area area_menu_setting(600, 0, 600+200, 0 + 80);
+
 gui::area area_function_water(60, 160, 60 + 300, 160 + 300);
 gui::area area_function_sound(440, 160, 440 + 300, 160 + 300);
 
@@ -63,6 +71,110 @@ gui::area area_flower_capture(233, 1110, 233+130, 1110+130 );
 gui::area area_flower_upload(437, 1110, 437+130, 1110+130);
 
 
+namespace info_page{
+    void load(){
+        display::draw_bmp(img_pages[MENU_INFO]);
+        display::draw_bmp(img_info[INFO_FEW], 500, 220);
+        display::draw_bmp(img_info[INFO_FEW], 500, 440);
+        display::draw_bmp(img_info[INFO_FEW], 500, 660);
+        display::draw_bmp(img_info[INFO_FEW], 500, 880);
+        display::draw_bmp(img_info[INFO_FEW], 500, 1100);
+    }
+    void unload()
+    {
+
+    }
+}
+
+namespace function_page{
+    void load(){
+        display::draw_bmp(img_pages[MENU_FUNCTION]);
+
+    }
+    void unload(){
+
+    }
+}
+
+namespace setting_page
+{
+    void load(){
+        display::draw_bmp(img_pages[MENU_SETTING]);
+
+    }
+    void unload(){
+
+    }
+}
+
+namespace flower_page{
+    vector<string> vpath;
+    vector<vector<unsigned long> > vshowed;
+    int selected_picture_idx = -1;
+
+    void show_picture(int idx){
+        if(idx < 0 || (vpath.size() > 0 && idx >= vpath.size())) {
+            return;
+        }
+        selected_page = idx;
+
+        display::read_bmp(vshowed, vpath[idx]);
+        display::draw_bmp(vshowed, 0, 80);
+    }
+
+    void load()
+    {
+        display::draw_bmp(img_pages[MENU_FLOWER]);
+        //get the list of image file
+        vpath.clear();
+
+        DIR *dpdf;
+        struct dirent *epdf;
+        dpdf = opendir(PATH_DIR_CAPTURE);
+        if (dpdf != NULL){
+            while (epdf = readdir(dpdf))
+            {
+                string fname =epdf->d_name;
+                if(fname.length() > 4 )
+                {
+                    string ext = fname.substr(fname.length()-4);
+                    transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                    if(ext == ".bmp"){
+                        fname = PATH_DIR_CAPTURE + fname;
+                        cout << fname << endl;
+                        vpath.push_back(fname);
+                    }
+                }
+            }
+        }
+        closedir(dpdf);
+
+        if(selected_picture_idx >= vpath.size() || selected_picture_idx < 0)
+        {
+            selected_picture_idx = max(0, ((int)vpath.size())-1);
+        }
+        show_picture(selected_picture_idx);
+
+    }
+
+    void unload(){
+
+    }
+
+    void show_next(){
+        if(selected_picture_idx < 0 ){
+            return;
+        }
+        show_picture(++selected_picture_idx);
+    }
+    void show_before(){
+        if(selected_picture_idx >= vpath.size()) {
+            return;
+        }
+        show_picture(--selected_picture_idx);
+    }
+}
+
 
 namespace gui{
 
@@ -70,33 +182,47 @@ namespace gui{
     void draw_page(int page)
     {
         printf("[draw_page] page :%d\n",page);
-        if(page == selected_page)
-        {   //same page selected
+        if(page < 0 || page > 3 || page ==selected_page ){
             return;
         }
 
-
-
-
-        switch(page){
+        int before = selected_page;
+        selected_page = page;
+        //unload before page
+        switch(before)
+        {
             case MENU_FLOWER:
-                init_flower_page();
+                flower_page::unload();
                 break;
             case MENU_INFO:
-                init_info_page();
+                info_page::unload();
                 break;
             case MENU_FUNCTION:
-                init_function_page();
+                function_page::unload();
                 break;
             case MENU_SETTING:
-                init_setting_page();
-                break;
-            default:
-                page = MENU_FLOWER;
-                draw_page(page);
+                setting_page::unload();
                 break;
         }
-        selected_page = page;
+
+        //load new page
+        switch(selected_page){
+            case MENU_FLOWER:
+                flower_page::load();
+                break;
+            case MENU_INFO:
+                info_page::load();
+                break;
+            case MENU_FUNCTION:
+                function_page::load();
+                break;
+            case MENU_SETTING:
+                setting_page::load();
+                break;
+            default:
+                return;
+        }
+
     }
 
 
@@ -109,14 +235,20 @@ namespace gui{
             //tab-menu side
             if( 0 <= e.y && e.y <= 79)
             {   // y : [0, 79]  - tab menu side
-                for(int i = 0 ; i <4 ; i++)
+                if(area_menu_flower.in_area(e.x, e.y))
                 {
-                    if( i * 200 <= e.x && e.x < (i+1)*200)
-                    {
-                        draw_page(i);
-                        return;
-                    }
+                    draw_page(MENU_FLOWER);
+                }else if(area_menu_info.in_area(e.x, e.y))
+                {
+                    draw_page(MENU_INFO);
+                }else if(area_menu_function.in_area(e.x, e.y))
+                {
+                    draw_page(MENU_FUNCTION);
+                }else if(area_menu_setting.in_area(e.x, e.y))
+                {
+                    draw_page(MENU_SETTING);
                 }
+                return;
             }
 
             //in page
@@ -165,80 +297,3 @@ namespace gui{
     }
 
 }
-
-namespace flower_page{
-    vector<string> vpath;
-    void init()
-    {
-        //get the list of image file
-        vpath.clear();
-
-        DIR *dpdf;
-        struct dirent *epdf;
-        dpdf = opendir(PATH_DIR_CAPTURE);
-        if (dpdf != NULL){
-            while (epdf = readdir(dpdf)){
-                string s = epdf->d_name;
-                int len = s.length();
-
-                vpath.push_back(epdf->d_name);
-            }
-        }
-
-
-    }
-}
-
-namespace info_page{
-
-}
-
-namespace function_page{
-
-}
-
-namespace setting_page
-{
-
-}
-
-void init_flower_page()
-{
-    display::draw_bmp(img_pages[0]);
-/*
-    camera::CreateCamera(0);
-    sleep(5);
-    camera::save("test123.bmp");
-    sleep(5);
-    camera::DestroyCamera();*/
-
-}
-
-
-
-void init_info_page()
-{
-    cout << "load" << endl;
-    display::draw_bmp(img_pages[1]);
-    cout << "drawn" << endl;
-
-    cout << "drawn2" << endl;
-    display::draw_bmp(img_info[INFO_FEW], 500, 220);
-    display::draw_bmp(img_info[INFO_FEW], 500, 440);
-    display::draw_bmp(img_info[INFO_FEW], 500, 660);
-    display::draw_bmp(img_info[INFO_FEW], 500, 880);
-    display::draw_bmp(img_info[INFO_FEW], 500, 1100);
-
-}
-void init_function_page()
-{
-    display::draw_bmp(img_pages[2]);
-
-}
-void init_setting_page()
-{
-    display::draw_bmp(img_pages[3]);
-
-}
-
-
