@@ -106,20 +106,26 @@ void _receive(Shared* shared)
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
             
-            bufw[0] = 2;///< if bufw[0] was 2, run water pump
-            res = write(fd, bufw, 1);///< serial write to arduino
-            sleep(5);///< run water pump for 3 second.
+            if(shared->sensor.soil_humidity > shared->data.soil_humidity)
+            {
+                bufw[0] = 2;///< if bufw[0] was 2, run water pump
+                res = write(fd, bufw, 1);///< serial write to arduino
+                sleep(5);///< run water pump for 3 second.
+            }
+            else
+            {
+                bufw[0] = 1;///< if bufw[0] was 1, read sensor value.
+                res = write(fd, bufw, 1);///< serial write to arduino.
 
-            bufw[0] = 1;///< if bufw[0] was 1, read sensor value.
-            res = write(fd, bufw, 1);///< serial write to arduino.
+                res = read(fd, bufr, 255);///< read sensor value in bufr.
+                bufr[res] = 0;
 
-            res = read(fd, bufr, 255);///< read sensor value in bufr.
-            bufr[res] = 0;
-
-            printf("%s\n", bufr);
-            printf("%d\n", res);
-            sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
-            //send_to_server(shared->sensor, shared->id);
+                printf("%s\n", bufr);
+                printf("%d\n", res);
+                sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+                //send_to_server(shared->sensor, shared->id);
+            }
+            
             
         
             sleep(3);
