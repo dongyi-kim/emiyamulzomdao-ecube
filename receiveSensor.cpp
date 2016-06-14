@@ -2,7 +2,7 @@
     @file   -   receiveSensor.cpp
     @author -   
     @brief  -   receive value from arduino sensor by usb serial communication.
-    @reference - http://www.tldp.org/HOWTO/Serial-Programming-HOWTO
+    @reference - http://www.tldp.org/HOWTO/Serial-Programming-HOWTO\(system programming practice arduino sensor manual and communication.pptx)
 */
 #include <sys/types.h>
 #include <sys/stat.h>
