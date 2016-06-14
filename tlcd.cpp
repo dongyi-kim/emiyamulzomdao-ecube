@@ -1,6 +1,9 @@
-//
-// Created by root on 16. 6. 12.
-//
+/**
+	@file	-	tlcd.cpp
+	@author	-	
+	@brief	-	write text on text lcd
+	@reference - system programming([Practice]8th_Device_Driver.pptx)
+*/
 
 #include <cstdio>
 #include <cstdlib>
@@ -21,12 +24,7 @@ using namespace std;
 
 static int  fd ;
 
-#define DRIVER_TLCD		"/dev/cntlcd"
-/******************************************************************************
-*
-*      TEXT LCD FUNCTION
-*
-******************************************************************************/
+#define DRIVER_TLCD		"/dev/cntlcd"///< text LCD file driver path.
 #define CLEAR_DISPLAY		0x0001
 #define CURSOR_AT_HOME		0x0002
 
