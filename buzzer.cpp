@@ -2,7 +2,7 @@
 	@file	-	buzzer.cpp
 	@author	-	
 	@brief	-	control buzzer
-	@reference -	/root/periApp/buzzer/buzzertest.c
+	@reference -	/root/periApp/buzzertest/buzzertest.c
 */
 #include <stdio.h>
 #include <stdlib.h>
