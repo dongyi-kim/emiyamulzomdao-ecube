@@ -2,7 +2,7 @@
 	@file	-	buzzer.cpp
 	@author	-	
 	@brief	-	control buzzer
-	@reference -	system programming([Practice]8th_Device driver.pptx)
+	@reference -	/root/periApp/buzzer/buzzertest.c
 */
 #include <stdio.h>
 #include <stdlib.h>
