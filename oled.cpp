@@ -1,7 +1,9 @@
-//
-// Created by root on 16. 6. 12.
-//
-
+/*
+        @file   -       fnd.cpp
+        @author -       
+        @brief  -       print picture on oled.
+        @reference -    system programming([Practice]8th_Device driver.pptx)
+*/
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -18,7 +20,7 @@
 
 using namespace std;
 
-#define DRIVER_OLED		"/dev/cnoled"
+#define DRIVER_OLED		"/dev/cnoled" ///< oled file driver path.
 
 static  int  fd ;
 
