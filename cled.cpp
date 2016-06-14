@@ -2,7 +2,7 @@
 	@file	-	cled.cpp
 	@author	-	
 	@brief	-	control full color led
-	@reference -	system programming([Practice]8th_Device driver.pptx)
+	@reference -	/root/periApp/cledtest/cledtest.c(system programming practice 8th device driver.pptx)
 */
 
 #include <cstdio>
