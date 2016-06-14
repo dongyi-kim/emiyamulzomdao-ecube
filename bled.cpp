@@ -2,7 +2,7 @@
     @file   -   bled.cpp
     @author -   
     @brief  -   control bus led
-    @reference - /root/periApp/ledtest/ledtest.c
+    @reference - /root/periApp/ledtest/ledtest.c(system programming practice 8th device driver.pptx)
 */
 #include <cstdio>
 #include <cstdlib>
