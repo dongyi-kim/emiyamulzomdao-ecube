@@ -2,7 +2,7 @@
         @file   -       fnd.cpp
         @author -       
         @brief  -       control 7-segment
-        @reference -    system programming([Practice]7th_Device driver.pptx)
+        @reference -    /root/periApp/fndtest/fndtest.c(system programming practice 7th device driver.pptx)
 */
 
 #include <stdio.h>
