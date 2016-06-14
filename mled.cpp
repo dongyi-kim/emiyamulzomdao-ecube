@@ -2,7 +2,7 @@
 	@file	-	mled.cpp
 	@author	-	
 	@brief	-	control dot matrix led
-	@reference -	system programming([Practice]7th_Device driver.pptx)
+	@reference -	/root/periApp/mledtest/mledtest.c(system programming practice 7th device driver.pptx)
 */
 #include <stdio.h>
 #include <stdlib.h>
