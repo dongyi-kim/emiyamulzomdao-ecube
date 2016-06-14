@@ -397,24 +397,14 @@ void _oled(Shared* shared)
     string prev = "", cur;
 
     while(1) {
-        int cnt = 0;///< the number of satisfaction 
+        int cnt = shared->getCompare();///< the number of satisfaction 
         //compare value standard data with sensor data
-        chk[0] = s->humidity >= d->humidity;///< chk[0] compare humdity
-        chk[1] = s->temperature >= d->temperature;///< chk[1] compare temperatrue
-        chk[2] = s->illumination >= d->illumination;///< chk[2] compare illumination
-        chk[3] = s->soil_humidity <= d->soil_humidity;///< chk[3] compare humidity
-        for(int i = 0 ; i < 4 ; i++)
-        {
-            if(chk[i])
-            {
-                cnt++;
-            }
-        }
+        
         if(s->illumination <= 10)///< illumination sensor value less than 10, the time is night.
         {
             cur = "oled_face_sleep.img";///< oled print sleeping
         }
-        else if(s->soil_humidity >= d->soil_humidity*2)///< soil humidity sensor value greater than twice of soil humidity standard data, express over.
+        else if(s->soil_humidity <= d->soil_humidity*2)///< soil humidity sensor value greater than twice of soil humidity standard data, express over.
         {
             cur = "oled_face_confuse.img";///< oled print water over.
         }

@@ -48,11 +48,28 @@ public:
     Data sensor;///< sensor data.
     State state;///< 
     int mode;
+    int cledValue[4];
     std::string id;
     bool liq_exist;
+    bool sns_exist; 
     int segValue;
+
+    int getCompare() {
+        int cnt = 0;
+        if( sensor.illumination >= data.illumination ) cnt++;
+        if( sensor.temperature >= data.temperature ) cnt++;
+        if( sensor.humidity >= data.humidity ) cnt++;
+        if( sensor.soil_humidity <= data.soil_humidity ) cnt++;
+
+        return cnt;
+    }
     Shared(){
-        liq_exist = true;
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            cledValue[i] = 0;
+        }
+        sns_exist = false;
+        liq_exist = false;
         segValue = -1;
         mode = -1;
         this->mode = -1;

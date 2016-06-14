@@ -81,7 +81,7 @@ int fndDisp(int driverfile, int* num , int dotflag)
     int fndChar[MAX_FND_NUM] = {0, 0, 0, 0, 0, 0};///< each 7-segment value.
     
     //dot express
-    for (i = 0; i < MAX_FND_NUM ; i++ )
+    for (int i = 0; i < MAX_FND_NUM ; i++ )
     {
         dotEnable[i] = dotflag & (0x1 << i);
     }
@@ -89,7 +89,7 @@ int fndDisp(int driverfile, int* num , int dotflag)
     while(1) {
         //if segment data is -1, initialize
         if( (*num) == -1 ) {
-            for(i = 5 ; i >= 0 ; i--)
+            for(int i = 5 ; i >= 0 ; i--)
             {
                 fndChar[i] = 10;
             }
@@ -99,7 +99,7 @@ int fndDisp(int driverfile, int* num , int dotflag)
             temp = (*num)%1000000;
 
             if( temp == -1 ) temp = 0;
-            for(i = 5 ; i >= 0 ; i--)
+            for(int i = 5 ; i >= 0 ; i--)
             {
                 fndChar[i] = temp%10;
                 temp /= 10;

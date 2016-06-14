@@ -5,6 +5,7 @@
     @reference - 
 */
 #include <iostream>
+#include "curl_common.h"
 #include "common.h"
 
 using namespace std;
@@ -20,7 +21,6 @@ namespace observe {
 
         bool init_flag = true;
 
-        int cnt = 0;
         while(1) {
             //if not obseve mode, initialize.
             if( s->mode != OBSERVE_MODE ) {
@@ -36,7 +36,9 @@ namespace observe {
                     if( s->mode != OBSERVE_MODE ) {
                         break;
                     }
-
+                    
+                    usleep(100000);
+                    
                     /* read data from arduino
                      * send data to server
                      * send pump event to arduino

@@ -11,6 +11,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include "common.h"
 #include "sendToServer.cpp"
 
@@ -25,6 +26,7 @@ included by <termios.h> */
 
 void _receive(Shared* shared)
 {
+
     char bufr[255];
     int fd, c, res;
     struct termios oldtio, newtio;
@@ -97,6 +99,7 @@ void _receive(Shared* shared)
     /*
     now clean the modem line and activate the settings for the port
     */
+    srand((unsigned int)time(NULL));
     tcflush(fd, TCIFLUSH);
     tcsetattr(fd, TCSANOW, &newtio);
     while (1) {     /* loop until we have a terminating condition */
@@ -105,26 +108,33 @@ void _receive(Shared* shared)
             of characters read is smaller than the number of chars available,
             subsequent reads will return the remaining chars. res will be set
             to the actual number of characters actually read */
-            
-            if(shared->sensor.soil_humidity > shared->data.soil_humidity)
+            /*
+            if(shared->sensor.soil_humidity > shared->data.soil_humidity && shared->liq_exist)
             {
+                printf("-1\n");
                 bufw[0] = 2;///< if bufw[0] was 2, run water pump
                 res = write(fd, bufw, 1);///< serial write to arduino
                 sleep(5);///< run water pump for 3 second.
             }
             else
-            {
+            {*/
+                printf("-2\n");
                 bufw[0] = 1;///< if bufw[0] was 1, read sensor value.
                 res = write(fd, bufw, 1);///< serial write to arduino.
+                printf("-1\n");
+                //res = read(fd, bufr, 255);///< read sensor value in bufr.
+                
+                shared->sensor.illumination = rand()%5+50;
+                shared->sensor.temperature = rand()%2+24;
+                shared->sensor.humidity = rand()%10+30;
+                shared->sensor.soil_humidity = rand()%10+400;
 
-                res = read(fd, bufr, 255);///< read sensor value in bufr.
                 bufr[res] = 0;
-
-                printf("%s\n", bufr);
-                printf("%d\n", res);
-                sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+                //printf("%s\n", bufr);
+                //printf("%d\n", res);
+                //sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
                 //send_to_server(shared->sensor, shared->id);
-            }
+            //}
             
             
         

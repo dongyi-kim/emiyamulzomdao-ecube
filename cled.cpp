@@ -64,8 +64,8 @@ void _cled(Shared* shared)
         return;
     }
 
-    bool liq_prev = !shared->liq_exist;
-
+    int liq_prev = !shared->cledValue[0];
+    int  sns_prev = !shared->cledValue[1];
     while(1) {
         dip = dipsw();//load dip switch data.
         
@@ -82,41 +82,30 @@ void _cled(Shared* shared)
             }
             preDip = dip;
             usleep(1000000);
+            liq_prev = shared->cledValue[0];
+            sns_prev = shared->cledValue[1];
             continue;
         }
-        //for do not repeat the turn on or turn off the led, check preview value.
-        if( liq_prev != shared->liq_exist ) {
-       	    //if liquid height sensor detect the liquid, 0th led turn off
-            if (!shared->liq_exist) {
+
+
+        
+       	    // if liquid height sensor detect the liquid, 0th led turn off
+            if( shared->cledValue[0] == 0 ) {
                 cledContr(fd, 0, 0, 0, 0);
             }
-            //if liquid height sensor do not detect the liquid, 0th led turn on by blue 255 color.
             else {
                 cledContr(fd, 0, 0, 0, 255);
             }
+            sleep(1);
+            if( shared->cledValue[1] == 0 ) {
+                cledContr(fd, 0, 0, 0, 0);
+            }
+            else {
+                cledContr(fd, 0, 0, 255, 0);
+            }
+            sleep(1);   
 
-        }
-        liq_prev = shared->liq_exist;
-    /*
-        if () {
-            cledContr(fd, 1, 0, 255, 0);
-            cledContr(fd, 1, 0, 0, 0);
-        }
-        */
-/*
-        if () {
-            cledContr(fd, 2, 255, 0, 0);
-        }
-        else {
-            cledContr(fd, 2, 0, 0, 0);
-        }
-        if () {
-            cledContr(fd, 3, 0, 0, 0);
-        }
-        else {
-            cledContr(fd, 3, 0, 0, 0);
-        }
-        */
+        usleep(100000);
 
     }
     close(fd);
