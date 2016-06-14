@@ -60,12 +60,6 @@ static int  fd ;
 #define SIG_BIT_RW			0x0200
 #define SIG_BIT_RS			0x0100
 
-/***************************************************
-read /write  sequence
-write cycle
-RS,(R/W) => E (rise) => Data => E (fall)
-
-***************************************************/
 int IsBusy(void)
 {
     unsigned short wdata, rdata;
@@ -121,15 +115,15 @@ int tlcd_writeCmd(unsigned short cmd)
     return 1;
 }
 
+//set start print text.
 int setDDRAMAddr(int x , int y)
 {
     unsigned short cmd = 0;
-//	printf("x :%d , y:%d \n",x,y);
+    
     if(IsBusy())
     {
         perror("setDDRAMAddr busy error.\n");
         return 0;
-
     }
 
     if ( y == 1 )
@@ -142,19 +136,13 @@ int setDDRAMAddr(int x , int y)
     }
     else
         return 0;
-
     if ( cmd >= 0x80)
         return 0;
-
-
-//	printf("setDDRAMAddr w1 :0x%X\n",cmd);
-
     if (!tlcd_writeCmd(cmd | SET_DDRAM_ADD_DEF))
     {
         perror("setDDRAMAddr error\n");
         return 0;
     }
-//	printf("setDDRAMAddr w :0x%X\n",cmd|SET_DDRAM_ADD_DEF);
     usleep(1000);
     return 1;
 }
@@ -192,25 +180,24 @@ int writeCh(unsigned short ch)
         return 0;
 
     wdata = SIG_BIT_RS | ch;
-    pthread_mutex_lock(thread_manager::get_tlcd());
+    pthread_mutex_lock(thread_manager::get_tlcd());///< waiting for printing picture of oled
     write(fd ,&wdata,2);
     pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RS | ch | SIG_BIT_E;
-    pthread_mutex_lock(thread_manager::get_tlcd());
+    pthread_mutex_lock(thread_manager::get_tlcd());///< waiting for printing picture of oled
     write(fd ,&wdata,2);
     pthread_mutex_unlock(thread_manager::get_tlcd());
 
     wdata = SIG_BIT_RS | ch;
-    pthread_mutex_lock(thread_manager::get_tlcd());
+    pthread_mutex_lock(thread_manager::get_tlcd());///< waiting for printing picture of oled
     write(fd ,&wdata,2);
     pthread_mutex_unlock(thread_manager::get_tlcd());
     usleep(1000);
     return 1;
 
 }
-
-
+//print blink cursor
 int setCursorMode(int bMove , int bRightDir)
 {
     unsigned short cmd = MODE_SET_DEF;
@@ -234,7 +221,7 @@ int functionSet(void)
         return 0;
     return 1;
 }
-
+//print stirng on text lcd
 int writeStr(const char* str)
 {
     unsigned char wdata;
@@ -253,69 +240,19 @@ int writeStr(const char* str)
 
 #define LINE_NUM			2
 #define COLUMN_NUM			16
-int clearScreen(int nline)
-{
-    int i;
-    if (nline == 0)
-    {
-        if(IsBusy())
-        {
-            perror("clearScreen error\n");
-            return 0;
-        }
-        if (!tlcd_writeCmd(CLEAR_DISPLAY))
-            return 0;
-        return 1;
-    }
-    else if (nline == 1)
-    {
-        setDDRAMAddr(0,1);
-        for(i = 0; i <= COLUMN_NUM ;i++ )
-        {
-            writeCh((unsigned char)' ');
-        }
-        setDDRAMAddr(0,1);
-
-    }
-    else if (nline == 2)
-    {
-        setDDRAMAddr(0,2);
-        for(i = 0; i <= COLUMN_NUM ;i++ )
-        {
-            writeCh((unsigned char)' ');
-        }
-        setDDRAMAddr(0,2);
-    }
-    return 1;
-}
-
 #define CMD_TXT_WRITE		0
 #define CMD_CURSOR_POS		1
 #define CMD_CEAR_SCREEN		2
 
-/*
-void doHelp(void)
-{
-	printf("Usage:\n");
-	printf("tlcdtest w line string :=>display the string  at line  , charater  '_' =>' '\n");
-	printf(" ex) tlcdtest w 0 cndi_text_test :=>display 'cndi text test' at line 1 \n");
-	printf("tlcdtest c on|off blink line column : \n");
-	printf(" => cursor set on|off =>1 or 0 , b => blink 1|0 , line column line position \n");
-	printf("tlcdtset c  1 1 2 12  :=> display blink cursor at 2 line , 12 column.\n");
-	printf("tlcdtest r [line] : => clear screen or clear line \n");
-	printf("tlcdtest r  : => clear screen \n");
-	printf("tlcdtest r 1: => clear line 1 \n");
-}
-*/
-
+//make string for print on lcd.
 string make_str(int value, char c)
 {
-    int temp = 100000;
+    int temp = 100000;///< 7-segment maximum digit place is six.
 
     string str = "";
 
-    str+=c;
-
+    str+=c;///< c is L(iLlumination), T(Temperature), H(Tumidity), S(Soil humidity)
+    //text will be expressed C000XXX, ex) L000053
     for(int i = 0 ; i < 6 ; i++) {
     
         str += (value/temp+'0');
@@ -328,7 +265,7 @@ string make_str(int value, char c)
     return str;
 }
 
-
+//print text on text lcd
 void _tlcd(Shared* shared) {
 
     int light;
@@ -336,7 +273,7 @@ void _tlcd(Shared* shared) {
     int humid;
     int soil_humid;
 
-    fd = open(DRIVER_TLCD, O_RDWR);
+    fd = open(DRIVER_TLCD, O_RDWR);//open text lcd file driver.
     if ( fd < 0 )
     {
         perror("driver open error.\n");
@@ -347,15 +284,14 @@ void _tlcd(Shared* shared) {
     string prev_under = "-1";
 
     functionSet();
-    displayMode(1, 1, 1);
+    displayMode(1, 1, 1);///< blink cursor
 
     while(1)
     {
+        string above = "";///< text for above line
+        string under = "";///< text for under line
 
-        string above = "";
-        string under = "";
-
-        if(shared->mode == OBSERVE_MODE)
+        if(shared->mode == OBSERVE_MODE)///< in observe mode, text lcd show sensor data value.
         {
             light = shared->sensor.illumination;
             temp = shared->sensor.temperature;
@@ -363,35 +299,33 @@ void _tlcd(Shared* shared) {
             soil_humid = shared->sensor.soil_humidity;
         }
 
-        else if(shared->mode == EDIT_MODE) {
+        else if(shared->mode == EDIT_MODE) {///< in edit mode, text lcd show standard data value.
             light = shared->data.illumination;
             temp = shared->data.temperature;
             humid = shared->data.humidity;
             soil_humid = shared->data.soil_humidity;
-
-
-
         }
-
+	//above text is illumination and temperature data.
         above += make_str(light, 'L');
         above += ' ';
         above += make_str(temp, 'T');
+        above += ' ';
+        //under text is humidity and soil humidity data.
         under += make_str(humid, 'H');
         under += ' ';
         under += make_str(soil_humid, 'S');
-
-        above += ' ';
         under += ' ';
+        //do not repeat the print text.
         if(prev_above == above && prev_under == under) {
-            
+            continue;
         }
 
         else
         {
             setDDRAMAddr(0,1);
-            writeStr(above.c_str());
+            writeStr(above.c_str());//print text above line.
             setDDRAMAddr(0,2);
-            writeStr(under.c_str());
+            writeStr(under.c_str());//print text under line
         }
 
         prev_above = above;
