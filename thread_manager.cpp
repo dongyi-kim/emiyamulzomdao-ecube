@@ -1,13 +1,15 @@
-//
-// Created by root on 16. 6. 12.
-//
+/*
+    @file   -   thread_manager.cpp
+    @author -   
+    @brief  -   name space of thread mutex
+    @reference - 
+*/
 
 #include "thread_manager.h"
 
 #include <pthread.h>
 #include <signal.h>
 #include <stdlib.h>
-
 
 using namespace std;
 
@@ -21,6 +23,7 @@ pthread_mutex_t mutex_cled;
 pthread_mutex_t mutex_dips;
 pthread_mutex_t mutex_key;
 
+//make namespace each thread of e-cube module.
 namespace thread_manager{
 
     pthread_mutex_t* get_tlcd(){
