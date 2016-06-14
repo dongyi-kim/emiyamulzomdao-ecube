@@ -2,7 +2,7 @@
     @file   -   dipsw.cpp
     @author -   
     @brief  -   read that dip switch is on or off.
-    @reference
+    @reference - /root/periApp/dipswtest/dipswtest.c(system programming practice 7th device driver.pptx)
 */
 
 #include <stdio.h>
