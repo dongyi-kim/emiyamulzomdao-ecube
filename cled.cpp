@@ -2,6 +2,7 @@
 	@file	-	cled.cpp
 	@author	-	
 	@brief	-	control full color led
+	@reference -	system programming([Practice]7th_Device driver.pptx)
 */
 
 #include <cstdio>
@@ -28,10 +29,12 @@ using namespace std;
 #define INDEX_BLUE_LED		3
 #define INDEX_MAX		4
 
-//color range 0 ~ 255
-//the number of led is 4, index 0 ~ 3
-//Red, Green, Blue 0~255, 0~255, 0~255
-//contol full color led turn on or turn off
+/**
+color range 0 ~ 255
+the number of led is 4, index 0 ~ 3
+Red, Green, Blue 0~255, 0~255, 0~255
+contol full color led turn on or turn off
+*/
 void cledContr(int driverfile, int idx_led, int r, int g, int b)
 {
     unsigned short colorArray[INDEX_MAX];
