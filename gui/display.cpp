@@ -28,8 +28,8 @@ using namespace std;
 namespace display
 {
 
-    int screen_width    =1280;
-    int screen_height   =800;
+    int screen_width    =   1280;
+    int screen_height   =   800;
     int bits_per_pixel;
     int line_length;
     unsigned char   *pfbmap = NULL;
@@ -46,7 +46,9 @@ namespace display
     {
         //init mutex
         pthread_mutex_init(&display_mutex, NULL);
-        vector<vector<unsigned long> > vscreen(screen_width, vector<unsigned long>(screen_height, 0x000000));
+        
+        //fiil all screen with black-pixel
+        vector<vector<unsigned long> > vscreen(screen_width, vector<unsigned long>(screen_height, 0xFFFFFF));
         draw_bmp(vscreen);
         return 0;
     }
