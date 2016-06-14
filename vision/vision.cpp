@@ -27,14 +27,13 @@ cv::Mat bitmap2mat(const vector<vector<unsigned long> > &bitmap){
         for(int c =0 ; c < cols; c++){
 
 
-//            unsigned long b = (bitmap[r][c] >> 16l)%255;
-//            unsigned long g = (bitmap[r][c] >> 8l)%255;
-//            unsigned long r = (bitmap[r][c])%255;
-//
-//            mat.at<cv::Vec3b>(r,c)[0] = b;
-//            mat.at<cv::Vec3b>(r,c)[1] = g;
-//            mat.at<cv::Vec3b>(r,c)[2] = r;
-            mat.at<cv::Vec3b>(r,c)[2] = bitmap[r][c];
+            unsigned long long r = ((unsigned long long)bitmap[r][c] >> (unsigned long long)16);
+            unsigned long long g = ((unsigned long long)bitmap[r][c] >> (unsigned long long)8);
+            unsigned long long b = ((unsigned long long)bitmap[r][c]);
+
+            mat.at<cv::Vec3b>(r,c)[0] = (char)r;
+            mat.at<cv::Vec3b>(r,c)[1] = (char)g;
+            mat.at<cv::Vec3b>(r,c)[2] = (char)b;
         }
     }
 
@@ -51,7 +50,7 @@ vector<cv::Point> get_contour(cv::Mat &img){
     cv::cvtColor(img, hsv, cv::COLOR_BGR2HSV);
 
     //detect green area from image
-    cv::inRange(hsv, cv::Scalar(40, 40, 60), cv::Scalar(80, 255, 255), green);
+    cv::inRange(hsv, cv::Scalar(43, 38, 60), cv::Scalar(94, 252, 247), green);
 
 
     //use bluring to remote white-noise
