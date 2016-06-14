@@ -1,5 +1,8 @@
 /*
-
+    @file   -   common.h
+    @author -   
+    @brief  -   manage shared variable in thread.
+    @reference - 
 */
 #include <iostream>
 #include <pthread.h>
@@ -41,9 +44,9 @@ public:
 
 class Shared {
 public:
-    Data data;
-    Data sensor;
-    State state;
+    Data data;///< standard data.
+    Data sensor;///< sensor data.
+    State state;///< 
     int mode;
     std::string id;
     bool liq_exist;
