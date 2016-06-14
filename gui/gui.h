@@ -1,6 +1,8 @@
-//
-// Created by parallels on 6/12/16.
-//
+/**
+    @file       gui.h
+    @author     dongyi kim
+    @brief      about touch event
+*/
 
 #ifndef EMIYAMULZOMDAO_ECUBE_GUI_H
 #define EMIYAMULZOMDAO_ECUBE_GUI_H

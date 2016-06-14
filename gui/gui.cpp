@@ -1,7 +1,8 @@
-//
-// Created by parallels on 6/12/16.
-//
-
+/**
+    @file       gui.cpp
+    @author     dongyi kim
+    @brief      about touch event
+*/
 #include "gui.h"
 #include "touch.h"
 #include "display.h"
@@ -18,6 +19,7 @@
 #include<pthread.h>
 #include "../cameratest.h"
 #include "../vision/camera.h"
+#include "../vision/vision.h"
 #define PATH_IMG_MENU_FLOWER    "img/menu_flower.bmp"
 #define PATH_IMG_MENU_INFO      "img/menu_info.bmp"
 #define PATH_IMG_MENU_FUNCTION  "img/menu_function.bmp"
@@ -119,6 +121,9 @@ namespace flower_page{
         selected_page = idx;
 
         display::read_bmp(vshowed, vpath[idx]);
+        int w = 700;
+        vision::resize(vshowed, 640*w/480,w);
+        vision::draw_contour(vshowed);
         display::draw_bmp(vshowed, 0, 80);
     }
 

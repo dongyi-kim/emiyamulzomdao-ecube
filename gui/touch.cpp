@@ -1,5 +1,5 @@
 /**    
-    @file	touch.cpp
+    @file	touch.h
     @author	dongyi kim
     @brief	about touch event on panels
 */

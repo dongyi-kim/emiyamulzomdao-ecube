@@ -59,6 +59,9 @@ display.o: gui/display.cpp
 gui.o: gui/gui.cpp
 	$(CXX) -c gui/gui.cpp
 
+vision.o: vision/vision.cpp
+	$(CXX) -c vision/vision.cpp -I/CNDI_CD/source/application/opencvApp/build/install/include -I/CNDI_CD/source/application/opencvApp/build/install/include/opencv2 -L/CNDI_CD/source/application/opencvApp/build/install/lib -lopencv_core -lopencv_flann -lopencv_highgui -lopencv_imgproc
+
 cameratest.o: cameratest.cpp
 	$(CXX) -c cameratest.cpp
 clean:

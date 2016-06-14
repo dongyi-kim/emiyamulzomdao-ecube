@@ -1,7 +1,7 @@
 /**    
     @file       touch.h
-    @author     채경석(kyuseo99@chol.com) RapidEngine™
-    @brief
+    @author     dongyi kim
+    @brief      about touch event
 */
 
 #ifndef EMIYAMULZOMDAO_ECUBE_TOUCH_H

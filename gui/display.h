@@ -1,7 +1,8 @@
-//
-// Created by parallels on 6/12/16.
-//
-
+/**
+    @file       display.h
+    @author     dongyi kim
+    @brief      about touch event
+*/
 #ifndef EMIYAMULZOMDAO_ECUBE_DISPLAY_H
 #define EMIYAMULZOMDAO_ECUBE_DISPLAY_H
 #include<vector>
