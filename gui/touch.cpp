@@ -1,10 +1,8 @@
-//
-// Created by parallels on 6/12/16.
-//
-
-/*
- *
- */
+/**    
+    @file   touch.h
+    @author dongyi kim
+    @brief  about touch event on panels
+*/
 #include "touch.h"
 
 #include <stdio.h>
@@ -22,18 +20,18 @@
 #include <set>
 
 
-#define	 FBDEV_FILE "/dev/fb0"
-#define  INPUT_DEVICE_LIST	"/proc/bus/input/devices"
-#define  EVENT_STR	"/dev/input/event"
-#define  MAX_BUFF	200
+#define  FBDEV_FILE         "/dev/fb0"
+#define  INPUT_DEVICE_LIST  "/proc/bus/input/devices"
+#define  EVENT_STR      "/dev/input/event"
+#define  MAX_BUFF       200
+#define EVENT_NUM       2
+int     screen_width;
+int     screen_height;
+int     bits_per_pixel;
+int     line_length;
 
-int		screen_width;
-int		screen_height;
-int		bits_per_pixel;
-int		line_length;
-
-#define MAX_TOUCH_X	0x740
-#define MAX_TOUCH_Y	0x540
+#define MAX_TOUCH_X 0x740
+#define MAX_TOUCH_Y 0x540
 
 using namespace std;
 
@@ -41,7 +39,7 @@ pthread_t listener = NULL;
 set<void(*)(touch::touch_event)> callbacks;
 
 
-int	fb_fd = NULL;
+int fb_fd = NULL;
 int fp    = NULL;
 int prev_x, prev_y;
 int cur_x, cur_y;
@@ -52,35 +50,56 @@ pthread_mutex_t timer_mutex;
 pthread_mutex_t callback_mutex;
 pthread_mutex_t counter_mutex;
 
-void notify_callback(int x, int y){
+
+// create new touch event with coordinate
+// and call all of callback functions in the set 
+void notify_callback(int x, int y)
+{
     pthread_mutex_lock(&callback_mutex);
-    //call callbacks;
+
     prev_x = cur_x;
     prev_y = cur_y;
     cur_x = x;
     cur_y = y;
+    
+    //create new touch_event istance
     touch::touch_event e(cur_x, cur_y, prev_x, prev_y);
+    
+    //to all callback functions 
     set<void(*)(touch::touch_event)>::iterator it = callbacks.begin();
     while(it != callbacks.end())
     {
+        //call functions
         (*it)(e);
         it++;
     }
+    
     pthread_mutex_unlock(&callback_mutex);
 }
 
-void *counter(void *nullable){
-    while(1){
+//run count-down to check touch_up event occur 
+void *counter(void *nullable)
+{
+    while(1)
+    {
         usleep(50000);
+        
+        //lock timer with mutex to prevent from being on race-condition
         pthread_mutex_lock(&timer_mutex);
-
         if(timer > 0)
         {
             timer = max(0, timer-50);
-            printf("timer : %d\n", timer);
-            if(timer == 0){
+            //printf("timer : %d\n", timer);
+            //if timer off after touch event 
+            if(timer == 0)
+            {
+        //free timer value while call-back function running    
                 pthread_mutex_unlock(&timer_mutex);
+      
+            //notify to all callback functions that new touch_up event occured       
                 notify_callback(-1, -1);
+                
+                //lock timer 
                 pthread_mutex_lock(&timer_mutex);
             }
         }
@@ -89,7 +108,9 @@ void *counter(void *nullable){
 }
 
 
-void read_coordinate(){
+//read coordinate from panel 
+void read_coordinate()
+{
     while(1)
     {
         int readSize;
@@ -100,11 +121,6 @@ void read_coordinate(){
         //printf("check read Size : %d(%d)\n", readSize, sizeof(event));
         if ( readSize == sizeof(event) )
         {
-			//printf("type :%04X \n",event.type);
-			//printf("code :%04X \n",event.code);
-			//printf("value:%08X \n",event.value);
-
-
             if( event.type == EV_ABS )
             {
                 if (event.code == ABS_MT_POSITION_X )
@@ -122,8 +138,13 @@ void read_coordinate(){
                 //set timer to 200ms
                 //timer_mutex should be used to prevent from being on race condition
                 pthread_mutex_lock(&timer_mutex);
+               
+                //if no touch event occur in 200ms, that's touch_up event 
                 timer = 200;
                 pthread_mutex_unlock(&timer_mutex);
+                
+                //convert axis panel-base to image-base
+                //and create new touch-event
                 notify_callback(  lcd_y, screen_width - lcd_x-1);
                 break;
             }
@@ -132,9 +153,7 @@ void read_coordinate(){
 
 }
 
-/* loop listening touch even
- *
- */
+// start to listen touch-event from device
 void *listen(void *nullable)
 {
     pthread_t counter_thread;
@@ -165,7 +184,7 @@ namespace touch
         struct  fb_var_screeninfo fbvar;
         struct  fb_fix_screeninfo fbfix;
         unsigned char   *fb_mapped;
-        int		mem_size;
+        int     mem_size;
 
         if (listener != NULL) {
             pthread_kill(listener, 1);

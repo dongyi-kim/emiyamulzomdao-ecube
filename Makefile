@@ -1,8 +1,8 @@
 CXX=arm-none-linux-gnueabi-g++
 
-main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o mled.o bled.o oled.o cled.o tlcd.o receiveSensor.o thread_manager.o camera.o display.o touch.o gui.o
+main: main.o edit.o observe.o auth.o curl_common.o buzzer.o dipsw.o fnd.o mled.o bled.o oled.o cled.o tlcd.o receiveSensor.o thread_manager.o display.o touch.o gui.o vision.o
 	
-	$(CXX) -o main $^ -lcurl -lpthread
+	$(CXX) -o main $^ -lcurl -lpthread -I/CNDI_CD/source/application/opencvApp/build/install/include -I/CNDI_CD/source/application/opencvApp/build/install/include/opencv2 -L/CNDI_CD/source/application/opencvApp/build/install/lib -lopencv_core -lopencv_flann -lopencv_highgui -lopencv_imgproc
 
 main.o: main.cpp
 	$(CXX) -c main.cpp
@@ -59,8 +59,8 @@ display.o: gui/display.cpp
 gui.o: gui/gui.cpp
 	$(CXX) -c gui/gui.cpp
 
-camera.o: vision/camera.cpp
-	$(CXX) -c vision/camera.cpp
+vision.o: vision/vision.cpp
+	$(CXX) -c vision/vision.cpp -I/CNDI_CD/source/application/opencvApp/build/install/include -I/CNDI_CD/source/application/opencvApp/build/install/include/opencv2 -L/CNDI_CD/source/application/opencvApp/build/install/lib -lopencv_core -lopencv_flann -lopencv_highgui -lopencv_imgproc
 
 clean:
 	rm *.o
