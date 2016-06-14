@@ -122,18 +122,13 @@ void _receive(Shared* shared)
                 bufw[0] = 1;///< if bufw[0] was 1, read sensor value.
                 res = write(fd, bufw, 1);///< serial write to arduino.
                 printf("-1\n");
-                //res = read(fd, bufr, 255);///< read sensor value in bufr.
-                
-                shared->sensor.illumination = rand()%5+50;
-                shared->sensor.temperature = rand()%2+24;
-                shared->sensor.humidity = rand()%10+30;
-                shared->sensor.soil_humidity = rand()%10+400;
+                res = read(fd, bufr, 255);///< read sensor value in bufr.
 
                 bufr[res] = 0;
-                //printf("%s\n", bufr);
-                //printf("%d\n", res);
-                //sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
-                //send_to_server(shared->sensor, shared->id);
+                printf("%s\n", bufr);
+                printf("%d\n", res);
+                sscanf(bufr, "%d %d %d %d %d", &shared->sensor.illumination, &shared->sensor.temperature, &shared->sensor.humidity, &shared->sensor.soil_humidity, &shared->liq_exist);
+                
             //}
             
             
