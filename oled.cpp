@@ -154,67 +154,6 @@ int writeData(int size , unsigned char* dataArr)
 
 }
 
-int readData(int size , unsigned short* dataArr)
-{
-
-    int i ;
-    unsigned short wdata;
-
-    wdata = CS_BIT_MASK & DC_BIT_MASK;
-    write(fd,&wdata,2);
-
-    wdata = CS_BIT_MASK & DC_BIT_MASK & ( CMD_READ_RAM| 0xFF00) ;
-    write(fd,&wdata,2);
-
-    wdata = CS_BIT_MASK & DC_BIT_MASK & WD_BIT_MASK &( CMD_READ_RAM| 0xFF00);
-    write(fd,&wdata,2);
-
-    wdata = CS_BIT_MASK & DC_BIT_MASK & (CMD_READ_RAM | 0xFF00);
-    write(fd,&wdata,2);
-
-    wdata = CS_BIT_MASK &  (CMD_READ_RAM | 0xFF00);
-    write(fd,&wdata,2);
-
-
-    for (i = 0; i < size ; i++ )
-    {
-        wdata = CS_BIT_MASK ;
-        write(fd,&wdata,2);
-
-        wdata = CS_BIT_MASK & RD_BIT_MASK ;
-        write(fd,&wdata,2);
-
-        wdata = CS_BIT_MASK & RD_BIT_MASK ;
-        write(fd,&wdata,2);
-
-        wdata = CS_BIT_MASK ;
-        write(fd,&wdata,2);
-
-        read(fd,&dataArr[i],2);
-
-    }
-    wdata = DEFAULT_MASK;
-    write(fd,&wdata ,2);
-
-    return 1;
-}
-
-int setAddressDefalut(void)
-{
-    unsigned short  cmd[3];
-    cmd[0] = CMD_SET_COLUMN_ADDR;
-    cmd[1] = 0;
-    cmd[2] = 127;
-    oled_writeCmd(3,cmd);
-
-    cmd[0] = CMD_SET_ROW_ADDR;
-    cmd[1] = 0;
-    cmd[2] = 127;
-    oled_writeCmd(3,cmd);
-
-    return 1;
-}
-
 // to send cmd  , must unlock
 int setCmdLock(int bLock)
 {
@@ -404,11 +343,12 @@ int Init(void)
 #define MODE_IMAGE		4
 #define MODE_INIT		5
 
-/*
-static int Mode;
+/**
+display picture on oled
 */
 void oledDisp(string str)
 {
+    // other board function waiting for printing pricture of oled 
     pthread_mutex_lock(thread_manager::get_oled());
     pthread_mutex_lock(thread_manager::get_cled());
     pthread_mutex_lock(thread_manager::get_mled());
@@ -438,28 +378,31 @@ void oledDisp(string str)
     
     return;
 }
-
+/**
+check oled display condition
+*/
 void _oled(Shared* shared)
 {
-    // open  driver
+    // open oled file driver
     fd = open(DRIVER_OLED, O_RDWR);
     if ( fd < 0 )
     {
         perror("driver open error.\n");
         return;
     }
-    Data* s = &(shared->sensor);
-    Data* d = &(shared->data);
+    Data* s = &(shared->sensor);///< s has sensor data
+    Data* d = &(shared->data);///< d has standard data
     bool chk[4];
     
     string prev = "", cur;
 
     while(1) {
-        int cnt = 0;
-        chk[0] = s->humidity >= d->humidity;
-        chk[1] = s->temperature >= d->temperature;
-        chk[2] = s->illumination >= d->illumination;
-        chk[3] = s->soil_humidity <= d->soil_humidity;
+        int cnt = 0;///< the number of satisfaction 
+        //compare value standard data with sensor data
+        chk[0] = s->humidity >= d->humidity;///< chk[0] compare humdity
+        chk[1] = s->temperature >= d->temperature;///< chk[1] compare temperatrue
+        chk[2] = s->illumination >= d->illumination;///< chk[2] compare illumination
+        chk[3] = s->soil_humidity <= d->soil_humidity;///< chk[3] compare humidity
         for(int i = 0 ; i < 4 ; i++)
         {
             if(chk[i])
@@ -467,30 +410,30 @@ void _oled(Shared* shared)
                 cnt++;
             }
         }
-        if(s->illumination <= 10)
+        if(s->illumination <= 10)///< illumination sensor value less than 10, the time is night.
         {
-            cur = "oled_face_sleep.img";
+            cur = "oled_face_sleep.img";///< oled print sleeping
         }
-        else if(s->soil_humidity >= d->soil_humidity*2)
+        else if(s->soil_humidity >= d->soil_humidity*2)///< soil humidity sensor value greater than twice of soil humidity standard data, express over.
         {
-            cur = "oled_face_confuse.img";
+            cur = "oled_face_confuse.img";///< oled print water over.
         }
-        else if(cnt == 4)
+        else if(cnt == 4)///< all conditions satisfy, express smile
         {
-            cur = "oled_face_smile.img";
+            cur = "oled_face_smile.img";///< oled print smile.
         }
-        else if(cnt == 0)
+        else if(cnt == 0)///< all conditions not satisfy, express angry.
         {
-            cur = "oled_face_angry.img";
+            cur = "oled_face_angry.img";///< oled print angry
         }
-        else
+        else///< other is normal.
         {
-            cur = "oled_face_normal.img";
+            cur = "oled_face_normal.img";///< oled print normal.
         }
-
+        //do not repeat the print picture.
         if(cur != prev)
         {
-            oledDisp(cur);
+            oledDisp(cur);///< print picture by condition.
         }
         prev = cur;
         usleep(1000000);
@@ -504,4 +447,3 @@ void _oled(Shared* shared)
 void* oled(void* shared) {
     _oled((Shared*)shared);
 }
-
