@@ -2,7 +2,7 @@
         @file   -       edit.cpp
         @author -       
         @brief  -       edit mode
-        @reference -    /root/periApp/keytest/keytest.c
+        @reference -    /root/periApp/keytest/keytest.c(system programming practice 8th device driver.pptx)
 */
 #include <iostream>
 #include <pthread.h>
